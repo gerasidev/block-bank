@@ -1,0 +1,39 @@
+THYSEAS PROTOCOL: THE FRACTIONAL RESERVE BANK FOR ATOMS
+======================================================
+
+MISSION
+-------
+To bridge the gap between digital capital and physical infrastructure. THYSEAS is built to fund "machines that move atoms"—robotics, semiconductors, and prime real estate—using the efficiency of blockchain and the leverage of traditional banking logic.
+
+CORE BUSINESS LOGIC (THE "CRYPTO BANK" MODEL)
+---------------------------------------------
+
+1. REAL WORLD ASSET (RWA) TOKENIZATION (ThyseasRWA.sol)
+   - Physical assets (Robots, GPUs, Real Estate) are appraised by the team.
+   - These assets are minted as unique ERC-721 NFTs.
+   - Each NFT contains metadata: name, valuation (in USD), asset type, and location.
+
+2. FRACTIONAL RESERVE MINTING (LendingVault.sol)
+   - Unlike most DeFi protocols that require "Over-collateralization" (e.g., locking $150 to borrow $100), THYSEAS operates like a commercial bank.
+   - LEVERAGE RATIO (10x - 25x): The protocol can mint and lend up to 10x the value of the collateral provided.
+   - RESERVE RATIO: The bank maintains a base reserve (ETH/BTC) deposited by lenders. Total circulating $THYSEAS cannot exceed 10x the total liquidity in the vault.
+
+3. THE $THYSEAS STABLECOIN (ThyseasToken.sol)
+   - The native currency of the ecosystem.
+   - Conceptual Peg: 1 $THYSEAS = 1 BTC worth of value.
+   - It is minted when a loan is released and burned when a loan is repaid.
+
+4. THE "TRUST" AUDIT FLOW
+   - Money isn't just printed automatically. There is a multi-sig/manual approval layer.
+   - A loan requires MIN_APPROVALS (currently 3) from verified Auditors.
+   - This ensures that the RWA collateral is real and the valuation is accurate before leverage is applied.
+
+SUMMARY OF USER JOURNEY
+-----------------------
+- THE LENDER: Deposits ETH into the vault to earn yield and provide the "Bank Reserve."
+- THE BORROWER: Tokenizes their physical asset (e.g., a $1M Robot), locks the NFT in the vault, and receives a loan in $THYSEAS (up to 10x the robot's value).
+- THE AUDITOR: Verifies the legal and physical validity of the asset to release the funds.
+
+THE ULTIMATE GOAL
+-----------------
+To create 10x-25x leverage to fund the physical infrastructure of tomorrow. No VCs. Just hardware, code, and trust.

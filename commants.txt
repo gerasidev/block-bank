@@ -1,0 +1,12 @@
+npx hardhat node
+npx hardhat run scripts/deploy_local.js --network localhost
+
+
+⚠️ IMPORTANT: Sync the Network
+MetaMask will likely give you a "Nonce Error" or "Chain ID" error if you've run the node before.
+
+Make sure you have a Localhost 8545 network added (Chain ID: 31337).
+CRITICAL: Every time you restart your Hardhat node, you MUST clear your activity in MetaMask:
+Settings -> Advanced -> Clear activity tab data (or "Reset Account").
+If you don't do this, MetaMask will think the "nonce" (transaction count) is wrong and your transactions will fail.
+Which account are you going to use as the main Auditor? Account 1 is already set as the owner/auditor by default in the script.
