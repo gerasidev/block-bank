@@ -1,0 +1,80 @@
+import { motion } from 'framer-motion';
+import { Bitcoin, Cpu, ShieldCheck, Zap } from 'lucide-react';
+import chipImg from '../assets/chip.png';
+
+const features = [
+    {
+        icon: <Bitcoin className="w-10 h-10 text-primary" />,
+        title: "$THYSEAS Stablecoin",
+        desc: "ERC-20 token pegged 1:1 to BTC value. Mint by locking BTC via tBTC or native layers. Stability via open arbitrage."
+    },
+    {
+        icon: <Zap className="w-10 h-10 text-primary" />,
+        title: "Deep-Tech Lending",
+        desc: "Get up to 25x leverage. 6-24 month terms with 8-18% APY. Designed for hardware founders who need to move fast."
+    },
+    {
+        icon: <ShieldCheck className="w-10 h-10 text-primary" />,
+        title: "Community Audited",
+        desc: "Loans are verified by stakers and community auditors. Accurate audits are rewarded, false claims smashed."
+    }
+];
+
+export default function Features() {
+    return (
+        <section id="features" className="container py-24">
+            <motion.div
+                initial={{ y: 50, opacity: 0 }}
+                whileInView={{ y: 0, opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8 }}
+            >
+                <div className="text-center mb-16">
+                    <h2 className="text-3xl md:text-5xl font-bold text-foreground">
+                        Protocol <span className="text-muted-foreground">Architecture</span>
+                    </h2>
+                </div>
+
+                <div className="grid md:grid-cols-3 gap-8">
+                    {features.map((f, i) => (
+                        <div key={i} className="group p-8 rounded-xl border border-border bg-card hover:bg-secondary transition-all duration-300 hover:-translate-y-1">
+                            <div className="mb-6 bg-primary/5 w-fit p-3 rounded-lg group-hover:bg-primary/10 transition-colors duration-300">{f.icon}</div>
+                            <h3 className="text-xl font-bold mb-4">{f.title}</h3>
+                            <p className="text-muted-foreground leading-relaxed">{f.desc}</p>
+                        </div>
+                    ))}
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-16 mt-32 items-center">
+                    <div>
+                        <img
+                            src={chipImg}
+                            alt="AI Chip Wafer"
+                            className="w-full rounded-xl border border-border grayscale hover:grayscale-0 transition-all duration-700 shadow-xl"
+                        />
+                    </div>
+                    <div>
+                        <h2 className="text-3xl md:text-4xl font-bold mb-6 text-foreground">Hardware as <span className="text-muted-foreground">Collateral</span></h2>
+                        <p className="text-lg text-muted-foreground mb-8">
+                            We tokenize physical assets into ERC-721 NFTs with rich metadata.
+                            Your robots, GPUs, bioreactors, and lab equipment act as the bedrock for your liquidity.
+                        </p>
+                        <ul className="space-y-4">
+                            {[
+                                'Real-World Asset (RWA) Tokenization',
+                                'Legal Seizure & Repo Partner Network',
+                                'On-chain Dutch Auctions for Liquidations',
+                                'No Real Estate. Ever.'
+                            ].map((item, i) => (
+                                <li key={i} className="flex items-center text-lg">
+                                    <Cpu className="w-5 h-5 text-primary mr-3 flex-shrink-0" />
+                                    {item}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                </div>
+            </motion.div>
+        </section>
+    );
+}
