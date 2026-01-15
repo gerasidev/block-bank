@@ -108,6 +108,7 @@ export default function Navbar() {
                     <a href="#features" className="text-foreground/60 transition-colors hover:text-foreground">Features</a>
                     <Link to="/dashboard" className="text-foreground/60 transition-colors hover:text-foreground">Dashboard</Link>
                     <Link to="/books" className="text-foreground/60 transition-colors hover:text-foreground">Books & Audit</Link>
+                    <Link to="/lender" className="text-foreground/60 transition-colors hover:text-foreground">Lender</Link>
                     <Link to="/borrower" className="text-foreground/60 transition-colors hover:text-foreground">Request a Loan</Link>
 
                     <Link to="/auditor" className="text-muted-foreground hover:text-foreground font-semibold transition-colors flex items-center gap-1">
@@ -156,6 +157,7 @@ export default function Navbar() {
                     <a href="#features" className="block text-foreground/60 hover:text-foreground">Features</a>
                     <Link to="/dashboard" className="block text-foreground/60 hover:text-foreground">Dashboard</Link>
                     <Link to="/books" className="block text-foreground/60 hover:text-foreground">Books & Audit</Link>
+                    <Link to="/lender" className="block text-foreground/60 hover:text-foreground">Lender</Link>
                     <Link to="/auditor" className="block text-muted-foreground font-medium">Auditor Only</Link>
                     <Link to="/borrower" className="block text-muted-foreground font-medium">Borrower</Link>
 

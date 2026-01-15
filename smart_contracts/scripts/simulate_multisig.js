@@ -62,7 +62,7 @@ async function main() {
     // Request $50k loan (50,000 THY)
     // Max loan = 10k * 10 = 100k. 50k is safe.
     const loanAmount = hre.ethers.parseEther("50000");
-    await lendingVault.connect(borrower).requestLoan(tokenId, loanAmount, 500); // 5% interest
+    await lendingVault.connect(borrower).requestLoan(tokenId, loanAmount, "Super Computer Expansion Plan");
 
     const loanId = 0;
     console.log(`Loan #${loanId} created for ${hre.ethers.formatEther(loanAmount)} THY.\n`);
@@ -75,7 +75,8 @@ async function main() {
 
     // STEP A: Auditor 1 Approves
     console.log("\n-> Auditor 1 is signing...");
-    await lendingVault.connect(auditor1).approveLoan(loanId);
+    // Auditor approves with specific terms: 5x Leverage, 5% Interest (500 bps)
+    await lendingVault.connect(auditor1).approveLoan(loanId, 5, 500);
 
     loan = await lendingVault.loans(loanId);
     console.log(`Current Approvals: ${loan.approvalCount}/3`);
@@ -83,21 +84,21 @@ async function main() {
     // STEP B: Unhappy Path
     console.log("\n-> Stranger (Non-Auditor) is trying to sign...");
     try {
-        await lendingVault.connect(nonAuditor).approveLoan(loanId);
+        await lendingVault.connect(nonAuditor).approveLoan(loanId, 5, 500);
     } catch (error) {
         console.log("   [SUCCESS] Stranger was blocked: " + (error.message.split("revert")[1]?.trim() || "Reverted"));
     }
 
     // STEP C: Auditor 2 Approves
     console.log("\n-> Auditor 2 is signing...");
-    await lendingVault.connect(auditor2).approveLoan(loanId);
+    await lendingVault.connect(auditor2).approveLoan(loanId, 5, 500);
 
     loan = await lendingVault.loans(loanId);
     console.log(`Current Approvals: ${loan.approvalCount}/3`);
 
     // STEP D: Auditor 3 Approves
     console.log("\n-> Auditor 3 is signing...");
-    await lendingVault.connect(auditor3).approveLoan(loanId);
+    await lendingVault.connect(auditor3).approveLoan(loanId, 5, 500);
 
     loan = await lendingVault.loans(loanId);
     console.log(`Current Approvals: ${loan.approvalCount}/3`);

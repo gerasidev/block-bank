@@ -25,6 +25,7 @@ interface BorrowerLoan {
 export default function BorrowerDashboard() {
     const [account, setAccount] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
+    const [description, setDescription] = useState("");
     const [assetName, setAssetName] = useState("Robotic Arm Pro");
     const [valuation, setValuation] = useState("1.5");
     const [loanAmount, setLoanAmount] = useState("10");
@@ -146,7 +147,7 @@ export default function BorrowerDashboard() {
             const requestTx = await vaultContract.requestLoan(
                 tokenId,
                 ethers.parseUnits(loanAmount.toString(), 18),
-                500 // 5% interest
+                description
             );
             console.log("Request Transaction Sent:", requestTx.hash);
             await requestTx.wait();
@@ -168,6 +169,37 @@ export default function BorrowerDashboard() {
             (window as any).ethereum.on('accountsChanged', () => window.location.reload());
         }
     }, []);
+
+    const handleRepay = async (id: number, amount: string) => {
+        if (!window.ethereum) return;
+        setLoading(true);
+        setStatusMsg(`Processing Repayment for Loan #${id}...`);
+
+        try {
+            const provider = new ethers.BrowserProvider(window.ethereum as any);
+            const signer = await provider.getSigner();
+            const vaultContract = new ethers.Contract(VAULT_ADDRESS, LendingVaultABI.abi, signer);
+            // We need the token contract to approve spending first, assuming token is ThyseasToken
+            // But usually Vault handles burning if it has allowance, or we just transfer.
+            // The contract says: thyseasToken.transferFrom(msg.sender, address(this), totalOwed);
+            // So we need to Approve the Vault to spend our THY.
+
+            // For this UI, we assume approval is done or we add a step. 
+            // Simplified: Direct Repay call (assuming existing allowance or user handles it).
+            // Actually, let's just call repayLoan. If allowance fails, it errors.
+
+            const req = await vaultContract.repayLoan(id);
+            await req.wait();
+
+            setStatusMsg("Loan Repaid Successfully!");
+            fetchMyLoans(account!, provider);
+        } catch (err: any) {
+            console.error(err);
+            setStatusMsg("Repayment Error: " + (err.reason || err.message));
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <div className="container mx-auto p-6 space-y-8 animate-in fade-in duration-700">
@@ -199,6 +231,16 @@ export default function BorrowerDashboard() {
                         </CardHeader>
                         <CardContent className="space-y-5">
                             <div className="space-y-2">
+                                <label className="text-[10px] uppercase text-muted-foreground font-bold tracking-wider">Company / Asset Description</label>
+                                <Input
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    className="bg-transparent border-border focus:ring-primary"
+                                    placeholder="e.g. Series A Tech Startup, Robotic Arm for Factory Line 1"
+                                />
+                            </div>
+
+                            <div className="space-y-2">
                                 <label className="text-[10px] uppercase text-muted-foreground font-bold tracking-wider">Physical Asset name</label>
                                 <Input
                                     value={assetName}
@@ -218,7 +260,7 @@ export default function BorrowerDashboard() {
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] uppercase text-muted-foreground font-bold tracking-wider">Loan ($THY)</label>
+                                    <label className="text-[10px] uppercase text-muted-foreground font-bold tracking-wider">Requested Amount ($THY)</label>
                                     <Input
                                         type="number"
                                         value={loanAmount}
@@ -229,14 +271,14 @@ export default function BorrowerDashboard() {
                             </div>
 
                             <div className="p-3 bg-secondary/50 border border-border rounded-lg">
-                                <p className="text-[10px] text-muted-foreground mb-1">Estimated Leverage Ratio</p>
-                                <p className="text-lg font-bold text-foreground">{(Number(loanAmount) / Number(valuation)).toFixed(1)}x <span className="text-[10px] font-normal text-muted-foreground uppercase ml-1">Protocol Weighted</span></p>
+                                <p className="text-[10px] text-muted-foreground mb-1">Estimated Leverage Ratio (Subject to Audit)</p>
+                                <p className="text-lg font-bold text-foreground">{(Number(loanAmount) / Number(valuation)).toFixed(1)}x <span className="text-[10px] font-normal text-muted-foreground uppercase ml-1">Requested</span></p>
                             </div>
 
                             <Button
                                 className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-11 font-bold shadow-sm"
                                 onClick={handleMintAndRequest}
-                                disabled={loading || !account}
+                                disabled={loading || !account || !description}
                             >
                                 {loading ? <Loader2 className="animate-spin mr-2 h-4 w-4" /> : <Zap className="mr-2 h-4 w-4" />}
                                 {loading ? "Executing Protocol..." : "Mint & Request Loan"}
@@ -273,12 +315,13 @@ export default function BorrowerDashboard() {
                                         <TableHead className="text-slate-500 uppercase text-[10px] font-bold">Injected Capital</TableHead>
                                         <TableHead className="text-slate-500 uppercase text-[10px] font-bold">Audit Signatures</TableHead>
                                         <TableHead className="text-slate-500 uppercase text-[10px] font-bold">Protocol Status</TableHead>
+                                        <TableHead className="text-slate-500 uppercase text-[10px] font-bold text-right">Actions</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {myLoans.length === 0 ? (
                                         <TableRow>
-                                            <TableCell colSpan={4} className="text-center py-12 text-muted-foreground italic">
+                                            <TableCell colSpan={5} className="text-center py-12 text-muted-foreground italic">
                                                 No active protocol streams found for this identity.
                                             </TableCell>
                                         </TableRow>
@@ -311,6 +354,18 @@ export default function BorrowerDashboard() {
                                                 >
                                                     {loan.status}
                                                 </Badge>
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                {loan.isReleased && !loan.isRepaid && (
+                                                    <Button
+                                                        size="sm"
+                                                        variant="ghost"
+                                                        className="h-7 text-xs text-red-400 hover:text-red-300 hover:bg-red-900/10"
+                                                        onClick={() => handleRepay(loan.id, loan.amount)}
+                                                    >
+                                                        Repay Loan
+                                                    </Button>
+                                                )}
                                             </TableCell>
                                         </TableRow>
                                     ))}

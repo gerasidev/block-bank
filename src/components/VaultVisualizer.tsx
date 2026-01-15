@@ -16,7 +16,7 @@ interface Loan {
 const VaultVisualizer = () => {
     const [view, setView] = useState<'system' | 'network'>('system');
     const [reserve, setReserve] = useState(0);
-    const [multiplier] = useState(10);
+    const [multiplier] = useState(5);
     const [loans, setLoans] = useState<Loan[]>([]);
     const [transactions, setTransactions] = useState<Transaction[]>(initialTransactions);
     const [isRunning, setIsRunning] = useState(false);
@@ -65,7 +65,7 @@ const VaultVisualizer = () => {
             setLoans(prev => [...prev, newLoan]);
         }
 
-        setCurrentStep("Demo Complete. Bank 1:10 Ratio Solidified.");
+        setCurrentStep("Demo Complete. Bank 1:5 Ratio Solidified.");
         setIsRunning(false);
     };
 
@@ -175,7 +175,7 @@ const VaultVisualizer = () => {
                 <Card>
                     <CardHeader>
                         <CardTitle>Fractional Network Graph</CardTitle>
-                        <CardDescription>Visualizing the 1:10 relationship between Vault and Nodes</CardDescription>
+                        <CardDescription>Visualizing the 1:5 relationship between Vault and Nodes</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <div className="w-full flex justify-center py-8">

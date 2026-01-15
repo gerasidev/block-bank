@@ -14,7 +14,10 @@ interface Loan {
     id: number;
     borrower: string;
     amount: string;
+    description: string;
     approvals: number;
+    interestRate: number; // bps
+    leverageRatio: number;
     isReleased: boolean;
     isRepaid: boolean;
     canApprove: boolean; // Computed client-side
@@ -26,6 +29,9 @@ export default function AuditorDashboard() {
     const [loans, setLoans] = useState<Loan[]>([]);
     const [loading, setLoading] = useState(false);
     const [processingId, setProcessingId] = useState<number | null>(null);
+
+    // Track inputs for each loan: { loanId: { leverage: "5", interest: "500" } }
+    const [approvalParams, setApprovalParams] = useState<Record<number, { leverage: string, interest: string }>>({});
 
     // Connect Wallet
     const connectWallet = async () => {
@@ -61,20 +67,32 @@ export default function AuditorDashboard() {
         const loadedLoans: Loan[] = [];
 
         try {
-            // In a real app we would use an event indexer nicely, but here we query by ID
-            // assuming nextLoanId is public or we catch errors
             const nextId = await vault.nextLoanId();
             const auditorAddress = await signer.getAddress();
 
             for (let i = 0; i < Number(nextId); i++) {
                 const loanData = await vault.loans(i);
-                // Check if this specific auditor has already approved
                 const alreadyApproved = await vault.loanAuditorApprovals(i, auditorAddress);
+
+                // Initialize params if not set
+                if (!approvalParams[i]) {
+                    // Default or existing values
+                    setApprovalParams(prev => ({
+                        ...prev,
+                        [i]: {
+                            leverage: loanData.leverageRatio > 0 ? loanData.leverageRatio.toString() : "5",
+                            interest: loanData.interestRate > 0 ? loanData.interestRate.toString() : "500"
+                        }
+                    }));
+                }
 
                 loadedLoans.push({
                     id: i,
                     borrower: loanData.borrower,
                     amount: ethers.formatEther(loanData.amountLent),
+                    description: loanData.description,
+                    interestRate: Number(loanData.interestRate),
+                    leverageRatio: Number(loanData.leverageRatio),
                     approvals: Number(loanData.approvalCount),
                     isReleased: loanData.isReleased,
                     isRepaid: loanData.isRepaid,
@@ -89,15 +107,30 @@ export default function AuditorDashboard() {
         }
     };
 
+    const handleParamChange = (id: number, field: 'leverage' | 'interest', value: string) => {
+        setApprovalParams(prev => ({
+            ...prev,
+            [id]: { ...prev[id], [field]: value }
+        }));
+    };
+
     const handleApprove = async (id: number) => {
         if (!window.ethereum) return;
         setProcessingId(id);
+        const params = approvalParams[id];
+
         try {
             const provider = new ethers.BrowserProvider(window.ethereum);
             const signer = await provider.getSigner();
             const vault = new ethers.Contract(CONTRACT_ADDRESS, LendingVaultABI.abi, signer);
 
-            const tx = await vault.approveLoan(id);
+            console.log(`Approving Loan ${id} with Leverage: ${params.leverage}, Interest: ${params.interest}`);
+
+            const tx = await vault.approveLoan(
+                id,
+                Number(params.leverage),
+                Number(params.interest)
+            );
             await tx.wait();
 
             // Refresh
@@ -242,43 +275,69 @@ export default function AuditorDashboard() {
                             <Table>
                                 <TableHeader>
                                     <TableRow className="hover:bg-secondary border-border">
-                                        <TableHead className="w-[100px]">Loan ID</TableHead>
-                                        <TableHead>Borrower</TableHead>
-                                        <TableHead>Amount (THY)</TableHead>
+                                        <TableHead className="w-[80px]">ID</TableHead>
+                                        <TableHead>Description</TableHead>
+                                        <TableHead>Requested</TableHead>
+                                        <TableHead>Audit Terms</TableHead>
                                         <TableHead>Approvals</TableHead>
-                                        <TableHead>Status</TableHead>
-                                        <TableHead className="text-right">Actions</TableHead>
+                                        <TableHead className="text-right w-[300px]">Actions</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {loans.map((loan) => (
                                         <TableRow key={loan.id} className="hover:bg-white/5 border-white/10">
                                             <TableCell className="font-mono">#{loan.id}</TableCell>
-                                            <TableCell className="font-mono text-xs">{loan.borrower}</TableCell>
+                                            <TableCell className="max-w-[200px]">
+                                                <div className="space-y-1">
+                                                    <p className="text-sm font-medium leading-none truncate" title={loan.description}>{loan.description || "No description"}</p>
+                                                    <p className="text-xs text-muted-foreground font-mono truncate">{loan.borrower}</p>
+                                                </div>
+                                            </TableCell>
                                             <TableCell className="font-medium text-foreground">
-                                                {Number(loan.amount).toLocaleString()}
+                                                {Number(loan.amount).toLocaleString()} <span className="text-[10px] text-muted-foreground">THY</span>
+                                            </TableCell>
+                                            <TableCell>
+                                                {/* Logic for displaying inputs vs set values */}
+                                                {(loan.approvals === 0 && loan.canApprove) ? (
+                                                    <div className="flex gap-2">
+                                                        <div className="space-y-1">
+                                                            <p className="text-[10px] uppercase text-muted-foreground">Leverage</p>
+                                                            <input
+                                                                type="number"
+                                                                className="w-16 h-7 text-xs bg-secondary border border-border rounded px-2"
+                                                                value={approvalParams[loan.id]?.leverage || "5"}
+                                                                onChange={(e) => handleParamChange(loan.id, 'leverage', e.target.value)}
+                                                            />
+                                                        </div>
+                                                        <div className="space-y-1">
+                                                            <p className="text-[10px] uppercase text-muted-foreground">Rate (bps)</p>
+                                                            <input
+                                                                type="number"
+                                                                className="w-16 h-7 text-xs bg-secondary border border-border rounded px-2"
+                                                                value={approvalParams[loan.id]?.interest || "500"}
+                                                                onChange={(e) => handleParamChange(loan.id, 'interest', e.target.value)}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div className="space-y-1">
+                                                        <Badge variant="outline" className="text-[10px] h-5 mb-1">{loan.leverageRatio > 0 ? `${loan.leverageRatio}x` : "Pending"}</Badge>
+                                                        <p className="text-xs text-muted-foreground">{loan.interestRate > 0 ? `${loan.interestRate} bps` : "Pending Rate"}</p>
+                                                    </div>
+                                                )}
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex items-center gap-2">
                                                     <span className={`font-bold ${loan.approvals >= 3 ? "text-primary" : "text-muted-foreground"}`}>
                                                         {loan.approvals}/3
                                                     </span>
-                                                    <div className="h-2 w-20 bg-secondary rounded-full overflow-hidden">
+                                                    <div className="h-2 w-16 bg-secondary rounded-full overflow-hidden">
                                                         <div
                                                             className="h-full bg-primary transition-all duration-500"
                                                             style={{ width: `${(loan.approvals / 3) * 100}%` }}
                                                         />
                                                     </div>
                                                 </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                {loan.isReleased ? (
-                                                    <Badge variant="outline" className="border-primary text-primary bg-primary/5">Active</Badge>
-                                                ) : loan.isRepaid ? (
-                                                    <Badge variant="outline" className="border-muted-foreground/30 text-muted-foreground">Repaid</Badge>
-                                                ) : (
-                                                    <Badge variant="secondary">Pending</Badge>
-                                                )}
                                             </TableCell>
                                             <TableCell className="text-right">
                                                 <div className="flex justify-end gap-2">
@@ -293,16 +352,16 @@ export default function AuditorDashboard() {
                                                                     size="sm"
                                                                     onClick={() => handleApprove(loan.id)}
                                                                     disabled={!!processingId}
-                                                                    className="bg-primary hover:bg-primary/90"
+                                                                    className="bg-primary hover:bg-primary/90 h-8 text-xs font-bold"
                                                                 >
-                                                                    {processingId === loan.id ? <Loader2 className="h-3 w-3 animate-spin" /> : "Approve"}
+                                                                    {processingId === loan.id ? <Loader2 className="h-3 w-3 animate-spin" /> : (loan.approvals === 0 ? "Set Terms & Approve" : "Consensus Approve")}
                                                                 </Button>
                                                             )}
                                                             {loan.approvals >= 3 && (
                                                                 <Button
                                                                     size="sm"
                                                                     variant="outline"
-                                                                    className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                                                                    className="border-primary text-primary hover:bg-primary hover:text-primary-foreground h-8 text-xs"
                                                                     onClick={() => handleRelease(loan.id)}
                                                                     disabled={!!processingId}
                                                                 >

@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import BooksAssets from './pages/BooksAssets';
 import AuditorDashboard from './components/AuditorDashboard';
 import BorrowerDashboard from './components/BorrowerDashboard';
+import LenderDashboard from './components/LenderDashboard';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="books" element={<BooksAssets />} />
         <Route path="auditor" element={<AuditorDashboard />} />
         <Route path="borrower" element={<BorrowerDashboard />} />
+        <Route path="lender" element={<LenderDashboard />} />
       </Route>
     </Routes>
   );

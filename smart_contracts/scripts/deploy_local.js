@@ -69,9 +69,18 @@ async function main() {
     console.log("- Auditor 3:", auditor3.address);
 
     // 3. SEED THE RESERVE
-    const depositAmount = hre.ethers.parseEther("10.0"); // More liquidity for testing
+    const depositAmount = hre.ethers.parseEther("10.0"); // Liquidity from Lender
     await vault.connect(lender).depositLiquidity({ value: depositAmount });
-    console.log(`\n[BANK] Reserve Seeded with: 10.0 ETH`);
+    console.log(`\n[BANK] Reserve Seeded with: 10.0 ETH (Lender Deposit)`);
+
+    // 3b. SEED CAPITAL (Merged from seed_vault.js)
+    console.log("Seeding Admin Capital...");
+    const seedAmount = hre.ethers.parseEther("10.0");
+    await vault.seedCapital({ value: seedAmount });
+    console.log(`[BANK] Admin Capital Seeded with: 10.0 ETH (Equity Injection)`);
+
+    const finalBalance = await hre.ethers.provider.getBalance(vaultAddress);
+    console.log(`[BANK] Total Vault Balance: ${hre.ethers.formatEther(finalBalance)} ETH`);
 
     // 4. SAVE ADDRESSES FOR FRONTEND
     const config = {
