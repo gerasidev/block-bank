@@ -85,20 +85,3 @@ This is an open-source, community-driven project.
 **No VC. No premine. Just hardware and code.**
 
 License: MIT
-
----
-
-### 🎙 Audio Transcript (2026-01-15 - Part 1)
-
-"Okay man, we are going to change the readme file to this: the amount to be loaned will be max 5x. Okay? And as an asset we are going to take if the company has any hardware, and of course the future payments. We also going to be noted on the readme file that this is going to be built on trust. Okay? And of course on future upscale... upside I mean. So yes. Please also provide the transcript of this so we are on the same page."
-
----
-
-### 🎙 Audio Transcript (2026-01-15 - Part 2)
-
-"Okay we are going to also to have the deposits from individuals and work like a traditional bank works, meaning this: individual deposit some BTC... no other crypto... and this amount gets locked up on the smart contract for let's say one month. So we do this locking of one month and we also pay interest to the individual. The reason for this is to avoid... to avoid liquidation. Okay? Like banks get liquidation, you know, if all depositors go and withdraw the funds. So yes, please also provide also this transcript, implement this, meaning someone to be able to deposit crypto and also to be notified that his deposit is going to be locked for some amount of time. Okay, yes, please go."
-
-
-### 🎙 Audio Transcript (2026-01-15 - Part 3)
-
-"Okay, on the readme file, please add this: that the company is going to be part profit, like OpenAI. So it's going to... it's not going to be for-profit company, and neither non-profit company, but somewhere in between. Please add this to the readme file. Also the transcript of this, so we are on the same page."
