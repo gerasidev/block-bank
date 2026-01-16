@@ -46,6 +46,12 @@ async function main() {
     await rwa.waitForDeployment();
     const rwaAddress = await rwa.getAddress();
 
+    // 1c. Deploy Mock BTC
+    const MockBTC = await hre.ethers.getContractFactory("MockBTC");
+    const mockBTC = await MockBTC.deploy();
+    await mockBTC.waitForDeployment();
+    const btcAddress = await mockBTC.getAddress();
+
     const LendingVault = await hre.ethers.getContractFactory("LendingVault");
     const vault = await LendingVault.deploy(tokenAddress, rwaAddress);
     await vault.waitForDeployment();
@@ -69,15 +75,26 @@ async function main() {
     console.log("- Auditor 3:", auditor3.address);
 
     // 3. SEED THE RESERVE
-    const depositAmount = hre.ethers.parseEther("10.0"); // Liquidity from Lender
-    await vault.connect(lender).depositLiquidity({ value: depositAmount });
-    console.log(`\n[BANK] Reserve Seeded with: 10.0 ETH (Lender Deposit)`);
 
-    // 3b. SEED CAPITAL (Merged from seed_vault.js)
-    console.log("Seeding Admin Capital...");
+    // 3a. ETH Liquidity
+    const depositAmount = hre.ethers.parseEther("50.0"); // Liquidity from Lender
+    await vault.connect(lender).depositLiquidity({ value: depositAmount });
+    console.log(`\n[BANK] Reserve Seeded with: 50.0 ETH (Lender Deposit)`);
+
+    // 3b. Admin Capital (ETH)
     const seedAmount = hre.ethers.parseEther("10.0");
     await vault.seedCapital({ value: seedAmount });
     console.log(`[BANK] Admin Capital Seeded with: 10.0 ETH (Equity Injection)`);
+
+    // 3c. Seed BTC (Mock)
+    const btcSeedAmount = hre.ethers.parseUnits("100", 18);
+    await mockBTC.transfer(vaultAddress, btcSeedAmount);
+    console.log(`[BANK] Assets Seeded with: 100.0 MockBTC`);
+
+    // 3d. Seed Thyseas Tokens (Initial Bank Supply)
+    const thySeedAmount = hre.ethers.parseUnits("5000000", 18);
+    await token.mint(vaultAddress, thySeedAmount);
+    console.log(`[BANK] Currency Reserves Seeded: 5,000,000 THY`);
 
     const finalBalance = await hre.ethers.provider.getBalance(vaultAddress);
     console.log(`[BANK] Total Vault Balance: ${hre.ethers.formatEther(finalBalance)} ETH`);
@@ -86,7 +103,8 @@ async function main() {
     const config = {
         ThyseasToken: tokenAddress,
         ThyseasRWA: rwaAddress,
-        LendingVault: vaultAddress
+        LendingVault: vaultAddress,
+        MockBTC: btcAddress // Added MockBTC to config
     };
 
     // Save to a shared location if needed, or just log

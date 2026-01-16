@@ -8,7 +8,7 @@ import { AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
 import LendingVaultABI from '../../smart_contracts/artifacts/contracts/LendingVault.sol/LendingVault.json';
 
 // Configuration - In a real app these would be in environment variables
-const CONTRACT_ADDRESS = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"; // From our simulation output
+const CONTRACT_ADDRESS = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"; // From our simulation output
 
 interface Loan {
     id: number;
@@ -226,7 +226,7 @@ export default function AuditorDashboard() {
                         Auditor Dashboard
                     </h1>
                     <p className="text-muted-foreground mt-2">
-                        Review and approve pending loan requests. 3 signatures required.
+                        Review and approve pending loan requests. 2 signatures required.
                     </p>
                 </div>
                 <div className="text-right flex flex-col items-end gap-2">
@@ -294,7 +294,7 @@ export default function AuditorDashboard() {
                                                 </div>
                                             </TableCell>
                                             <TableCell className="font-medium text-foreground">
-                                                {Number(loan.amount).toLocaleString()} <span className="text-[10px] text-muted-foreground">THY</span>
+                                                {Number(loan.amount).toLocaleString()} <span className="text-[10px] text-muted-foreground">BTC</span>
                                             </TableCell>
                                             <TableCell>
                                                 {/* Logic for displaying inputs vs set values */}
@@ -328,13 +328,13 @@ export default function AuditorDashboard() {
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex items-center gap-2">
-                                                    <span className={`font-bold ${loan.approvals >= 3 ? "text-primary" : "text-muted-foreground"}`}>
-                                                        {loan.approvals}/3
+                                                    <span className={`font-bold ${loan.approvals >= 2 ? "text-primary" : "text-muted-foreground"}`}>
+                                                        {loan.approvals}/2
                                                     </span>
                                                     <div className="h-2 w-16 bg-secondary rounded-full overflow-hidden">
                                                         <div
                                                             className="h-full bg-primary transition-all duration-500"
-                                                            style={{ width: `${(loan.approvals / 3) * 100}%` }}
+                                                            style={{ width: `${(loan.approvals / 2) * 100}%` }}
                                                         />
                                                     </div>
                                                 </div>
@@ -357,7 +357,7 @@ export default function AuditorDashboard() {
                                                                     {processingId === loan.id ? <Loader2 className="h-3 w-3 animate-spin" /> : (loan.approvals === 0 ? "Set Terms & Approve" : "Consensus Approve")}
                                                                 </Button>
                                                             )}
-                                                            {loan.approvals >= 3 && (
+                                                            {loan.approvals >= 2 && (
                                                                 <Button
                                                                     size="sm"
                                                                     variant="outline"
@@ -368,7 +368,7 @@ export default function AuditorDashboard() {
                                                                     {processingId === loan.id ? <Loader2 className="h-3 w-3 animate-spin" /> : "Release Funds"}
                                                                 </Button>
                                                             )}
-                                                            {!loan.canApprove && loan.approvals < 3 && (
+                                                            {!loan.canApprove && loan.approvals < 2 && (
                                                                 <span className="text-xs text-muted-foreground italic">Voted</span>
                                                             )}
                                                         </>

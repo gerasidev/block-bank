@@ -2,15 +2,37 @@ import { Link } from 'react-router-dom';
 import { Wallet, Menu, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
+import LendingVaultABI from '../../smart_contracts/artifacts/contracts/LendingVault.sol/LendingVault.json';
+
 
 export default function Navbar() {
     const [account, setAccount] = useState<string | null>(null);
     const [balance, setBalance] = useState<string | null>(null);
     const [chainId, setChainId] = useState<number | null>(null);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const VAULT_ADDRESS = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"; // Your local vault address
 
     // Helper to format address
     const formatAddress = (addr: string) => `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+
+    const [bankLiquidity, setBankLiquidity] = useState<string>("0.0");
+    const [maxLeverage, setMaxLeverage] = useState<string>("0");
+    // Add this function to fetch stats
+    const fetchBankStats = async (provider: ethers.BrowserProvider) => {
+        try {
+            const vault = new ethers.Contract(VAULT_ADDRESS, LendingVaultABI.abi, provider);
+
+            // 1. Get total ETH/BTC balance in the vault
+            const extraLiquidity = await provider.getBalance(VAULT_ADDRESS);
+            setBankLiquidity(ethers.formatEther(extraLiquidity));
+            // 2. Get Max Leverage (Platform Limit)
+            const leverage = await vault.MAX_PLATFORM_LEVERAGE();
+            setMaxLeverage(leverage.toString());
+        } catch (err) {
+            console.error("Failed to fetch bank stats", err);
+        }
+    };
+
 
     const loadAccountData = async (provider: ethers.BrowserProvider) => {
         try {
@@ -22,6 +44,8 @@ export default function Navbar() {
             setAccount(address);
             setBalance(ethers.formatEther(balanceBigInt));
             setChainId(Number(network.chainId));
+            fetchBankStats(provider);
+
         } catch (err) {
             console.error("Error loading account data", err);
         }
@@ -114,6 +138,18 @@ export default function Navbar() {
                     <Link to="/auditor" className="text-muted-foreground hover:text-foreground font-semibold transition-colors flex items-center gap-1">
                         Auditor Only
                     </Link>
+
+                    {/* BANK STATS DISPLAY */}
+                    <div className="hidden lg:flex items-center gap-4 px-4 border-l border-border/50 ml-4">
+                        <div className="flex flex-col items-end">
+                            <span className="text-[10px] uppercase text-muted-foreground font-bold tracking-wider">Vault Liquidity</span>
+                            <span className="text-sm font-bold font-mono text-primary">{parseFloat(bankLiquidity).toFixed(2)} BTC</span>
+                        </div>
+                        <div className="flex flex-col items-end">
+                            <span className="text-[10px] uppercase text-muted-foreground font-bold tracking-wider">Max Leverage</span>
+                            <span className="text-sm font-bold font-mono text-foreground">{maxLeverage}x</span>
+                        </div>
+                    </div>
 
                     {account ? (
                         <div className="flex items-center gap-4">

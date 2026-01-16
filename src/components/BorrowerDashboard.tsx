@@ -5,13 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, Zap, Package, Landmark, Plus, ClipboardList } from 'lucide-react';
+import { Loader2, Zap, Plus, ClipboardList } from 'lucide-react';
 import LendingVaultABI from '../../smart_contracts/artifacts/contracts/LendingVault.sol/LendingVault.json';
 import ThyseasRWA_ABI from '../../smart_contracts/artifacts/contracts/ThyseasRWA.sol/ThyseasRWA.json';
+import ThyseasToken_ABI from '../../smart_contracts/artifacts/contracts/ThyseasToken.sol/ThyseasToken.json';
 
 // Addresses from our deploy_local.js output
-const VAULT_ADDRESS = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0";
+const VAULT_ADDRESS = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9";
 const RWA_ADDRESS = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
+const THYSEAS_TOKEN_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 
 interface BorrowerLoan {
     id: number;
@@ -170,7 +172,7 @@ export default function BorrowerDashboard() {
         }
     }, []);
 
-    const handleRepay = async (id: number, amount: string) => {
+    const handleRepay = async (id: number, _amount: string) => {
         if (!window.ethereum) return;
         setLoading(true);
         setStatusMsg(`Processing Repayment for Loan #${id}...`);
@@ -179,15 +181,15 @@ export default function BorrowerDashboard() {
             const provider = new ethers.BrowserProvider(window.ethereum as any);
             const signer = await provider.getSigner();
             const vaultContract = new ethers.Contract(VAULT_ADDRESS, LendingVaultABI.abi, signer);
-            // We need the token contract to approve spending first, assuming token is ThyseasToken
-            // But usually Vault handles burning if it has allowance, or we just transfer.
-            // The contract says: thyseasToken.transferFrom(msg.sender, address(this), totalOwed);
-            // So we need to Approve the Vault to spend our THY.
 
-            // For this UI, we assume approval is done or we add a step. 
-            // Simplified: Direct Repay call (assuming existing allowance or user handles it).
-            // Actually, let's just call repayLoan. If allowance fails, it errors.
+            // 1. Approve Token Spending (Fix for execution reverted)
+            setStatusMsg("Step 1/2: Approving Repayment...");
+            const tokenContract = new ethers.Contract(THYSEAS_TOKEN_ADDRESS, ThyseasToken_ABI.abi, signer);
+            const approveTx = await tokenContract.approve(VAULT_ADDRESS, ethers.MaxUint256);
+            await approveTx.wait();
 
+            // 2. Repay Loan
+            setStatusMsg("Step 2/2: Repaying Loan...");
             const req = await vaultContract.repayLoan(id);
             await req.wait();
 
@@ -251,7 +253,7 @@ export default function BorrowerDashboard() {
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <label className="text-[10px] uppercase text-muted-foreground font-bold tracking-wider">Valuation (ETH)</label>
+                                    <label className="text-[10px] uppercase text-muted-foreground font-bold tracking-wider">Valuation (BTC)</label>
                                     <Input
                                         type="number"
                                         value={valuation}
@@ -260,7 +262,7 @@ export default function BorrowerDashboard() {
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] uppercase text-muted-foreground font-bold tracking-wider">Requested Amount ($THY)</label>
+                                    <label className="text-[10px] uppercase text-muted-foreground font-bold tracking-wider">Requested Amount (BTC)</label>
                                     <Input
                                         type="number"
                                         value={loanAmount}
@@ -270,10 +272,7 @@ export default function BorrowerDashboard() {
                                 </div>
                             </div>
 
-                            <div className="p-3 bg-secondary/50 border border-border rounded-lg">
-                                <p className="text-[10px] text-muted-foreground mb-1">Estimated Leverage Ratio (Subject to Audit)</p>
-                                <p className="text-lg font-bold text-foreground">{(Number(loanAmount) / Number(valuation)).toFixed(1)}x <span className="text-[10px] font-normal text-muted-foreground uppercase ml-1">Requested</span></p>
-                            </div>
+
 
                             <Button
                                 className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-11 font-bold shadow-sm"
@@ -328,16 +327,16 @@ export default function BorrowerDashboard() {
                                     ) : myLoans.map((loan) => (
                                         <TableRow key={loan.id} className="border-white/5 hover:bg-white/5 transition-colors group">
                                             <TableCell className="font-mono text-sm text-muted-foreground italic">#{loan.id}</TableCell>
-                                            <TableCell className="font-bold text-foreground tracking-widest">{loan.amount} <span className="text-[10px] text-muted-foreground ml-1">$THY</span></TableCell>
+                                            <TableCell className="font-bold text-foreground tracking-widest">{loan.amount} <span className="text-[10px] text-muted-foreground ml-1">BTC</span></TableCell>
                                             <TableCell>
                                                 <div className="flex items-center gap-2">
-                                                    <span className={`text-xs font-bold ${loan.approvals >= 3 ? "text-foreground" : "text-muted-foreground"}`}>
-                                                        {loan.approvals}/3
+                                                    <span className={`text-xs font-bold ${loan.approvals >= 2 ? "text-foreground" : "text-muted-foreground"}`}>
+                                                        {loan.approvals}/2
                                                     </span>
                                                     <div className="h-1 w-16 bg-secondary rounded-full overflow-hidden">
                                                         <div
                                                             className="h-full transition-all duration-1000 bg-primary"
-                                                            style={{ width: `${(loan.approvals / 3) * 100}%` }}
+                                                            style={{ width: `${(loan.approvals / 2) * 100}%` }}
                                                         />
                                                     </div>
                                                 </div>

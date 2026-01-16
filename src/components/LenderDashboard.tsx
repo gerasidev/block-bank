@@ -5,9 +5,9 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from './ui/
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { Badge } from './ui/badge';
 import { Input } from './ui/input';
-import LendingVaultABI from '../abis/LendingVault.json';
+import LendingVaultABI from '../../smart_contracts/artifacts/contracts/LendingVault.sol/LendingVault.json';
 
-const LENDING_VAULT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+const LENDING_VAULT_ADDRESS = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9";
 const LOCK_PERIOD_DAYS = 30;
 
 interface Deposit {

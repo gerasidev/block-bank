@@ -40,7 +40,7 @@ contract LendingVault is Ownable, IERC721Receiver, ReentrancyGuard {
     // Multi-Sig / Auditor Logic
     mapping(address => bool) public auditors;
     mapping(uint256 => mapping(address => bool)) public loanAuditorApprovals; // loanId -> auditor -> approved
-    uint256 public constant MIN_APPROVALS = 3;
+    uint256 public constant MIN_APPROVALS = 2;
 
     // Default global max leverage (can be overridden by auditors per loan if safe)
     uint256 public constant MAX_PLATFORM_LEVERAGE = 10;
