@@ -46,8 +46,11 @@ contract LendingVault is Ownable, IERC721Receiver, ReentrancyGuard {
     uint256 public constant MAX_PLATFORM_LEVERAGE = 10;
 
     // Lender specific logic
-    uint256 public constant LOCK_PERIOD = 30 days;
+    // Lender specific logic
+    uint256 public constant MIN_LOCK_PERIOD = 30 days;
+    uint256 public constant MAX_LOCK_PERIOD = 365 days;
     uint256 public constant LENDER_INTEREST_RATE = 500; // 5% annual basis points
+    uint256 public constant EARLY_WITHDRAWAL_PENALTY = 500; // 5% penalty
 
     struct Deposit {
         uint256 amount;
@@ -93,7 +96,14 @@ contract LendingVault is Ownable, IERC721Receiver, ReentrancyGuard {
 
     // --- ADMIN / REVIEWER FUNCTIONS ---
 
+    // --- ADMIN / REVIEWER FUNCTIONS ---
+
     function setAuditor(address _auditor, bool _status) external onlyOwner {
+        console.log(
+            "Admin setting auditor status for: %s to %s",
+            _auditor,
+            _status
+        );
         auditors[_auditor] = _status;
         emit AuditorStatusChanged(_auditor, _status);
     }
@@ -103,10 +113,27 @@ contract LendingVault is Ownable, IERC721Receiver, ReentrancyGuard {
     /**
      * @dev Lenders deposit base assets (ETH) to provide the reserve for the bank.
      */
-    function depositLiquidity() external payable nonReentrant {
-        require(msg.value > 0, "Must deposit something");
+    /**
+     * @dev Lenders deposit base assets (ETH) to provide the reserve for the bank.
+     * @param lockDurationSeconds Duration to lock funds (min 30 days, max 365 days).
+     */
+    function depositLiquidity(
+        uint256 lockDurationSeconds
+    ) external payable nonReentrant {
+        console.log("--- depositLiquidity called ---");
+        console.log("Caller: %s", msg.sender);
+        console.log("Amount: %s wei", msg.value);
 
-        uint256 lockUntil = block.timestamp + LOCK_PERIOD;
+        require(msg.value > 0, "Must deposit something");
+        require(lockDurationSeconds >= MIN_LOCK_PERIOD, "Min lock 30 days");
+        require(lockDurationSeconds <= MAX_LOCK_PERIOD, "Max lock 365 days");
+
+        uint256 lockUntil = block.timestamp + lockDurationSeconds;
+        console.log(
+            "Lock period ends at timestamp: %s (current: %s)",
+            lockUntil,
+            block.timestamp
+        );
 
         depositsByLender[msg.sender].push(
             Deposit({
@@ -117,17 +144,15 @@ contract LendingVault is Ownable, IERC721Receiver, ReentrancyGuard {
             })
         );
 
+        uint256 oldBalance = lenderBalances[msg.sender];
         lenderBalances[msg.sender] += msg.value;
         totalLiquidityDeposited += msg.value;
 
-        emit LiquidityDeposited(msg.sender, msg.value);
+        console.log("Lender old balance: %s", oldBalance);
+        console.log("Lender new balance: %s", lenderBalances[msg.sender]);
+        console.log("Total System Liquidity: %s", totalLiquidityDeposited);
 
-        console.log(
-            "Liquidity deposited by %s: %s wei, locked until %s",
-            msg.sender,
-            msg.value,
-            lockUntil
-        );
+        emit LiquidityDeposited(msg.sender, msg.value);
     }
 
     /**
@@ -135,10 +160,12 @@ contract LendingVault is Ownable, IERC721Receiver, ReentrancyGuard {
      * Does not accrue interest, does not lock. Pure equity injection.
      */
     function seedCapital() external payable onlyOwner {
+        console.log("--- seedCapital called ---");
         require(msg.value > 0, "Must seed something");
         totalLiquidityDeposited += msg.value;
         // We don't track this as a lender deposit, so it's "free" equity for the protocol.
         console.log("Capital Seeded by Admin: %s wei", msg.value);
+        console.log("New Total Liquidity: %s", totalLiquidityDeposited);
     }
 
     // --- BORROWER FUNCTIONS ---
@@ -146,21 +173,29 @@ contract LendingVault is Ownable, IERC721Receiver, ReentrancyGuard {
     /**
      * @dev Borrower locks their RWA NFT to request a loan.
      * Borrower does NOT set leverage/interest. They just ask for an amount and give a description.
+     * NOTE: This operates on a "Good Faith" model. We hold the NFT as a trust pledge.
+     * The physical control of the asset remains with the borrower, trusting they will not sell it off-chain.
      */
     function requestLoan(
         uint256 tokenId,
         uint256 requestedAmount,
         string memory description
     ) external nonReentrant {
-        console.log("Requesting loan for Token ID: %s", tokenId);
+        console.log("--- requestLoan called ---");
+        console.log("Borrower: %s", msg.sender);
+        console.log("TokenID: %s", tokenId);
+        console.log("Requested Amount: %s", requestedAmount);
 
         // Transfer RWA to Vault
+        console.log("Transferring RWA from borrower to Vault...");
         rwaContract.safeTransferFrom(msg.sender, address(this), tokenId);
 
         // Valuation Check: Just ensure it's verified. Max leverage checks happen at approval.
         ThyseasRWA.AssetDetails memory asset = rwaContract.getAssetDetails(
             tokenId
         );
+        console.log("Asset Name: %s", asset.name);
+        console.log("Asset Verified: %s", asset.isVerified);
         require(asset.isVerified, "Asset must be verified first");
 
         loans[nextLoanId] = Loan({
@@ -182,8 +217,7 @@ contract LendingVault is Ownable, IERC721Receiver, ReentrancyGuard {
             requestedAmount,
             description
         );
-        console.log("Loan %s requested by %s", nextLoanId, msg.sender);
-
+        console.log("Loan Created ID: %s", nextLoanId);
         nextLoanId++;
     }
 
@@ -191,30 +225,56 @@ contract LendingVault is Ownable, IERC721Receiver, ReentrancyGuard {
      * @dev Repay the loan + interest to recover collateral.
      */
     function repayLoan(uint256 loanId) external nonReentrant {
+        console.log("--- repayLoan called ---");
+        console.log("LoanID: %s", loanId);
+        console.log("Caller: %s", msg.sender);
+
         Loan storage loan = loans[loanId];
         require(loan.isReleased, "Loan not active");
         require(!loan.isRepaid, "Already repaid");
 
+        console.log("Original Amount Lent: %s", loan.amountLent);
+
         // Simple calculation for MVP: total = principal + interest
         uint256 duration = block.timestamp - loan.startTime;
+        console.log("Loan Duration in seconds: %s", duration);
+
         // If duration is 0 (same block), charge minimal interest or just 0.
         if (duration == 0) duration = 1;
 
         uint256 interest = (loan.amountLent * loan.interestRate * duration) /
             (10000 * 365 days);
+
+        console.log("Calculated Raw Interest: %s", interest);
+
         // Minimum interest floor for demo purposes so it's not 0
-        if (interest == 0) interest = loan.amountLent / 1000; // 0.1% fee min
+        if (interest == 0) {
+            interest = loan.amountLent / 1000; // 0.1% fee min
+            console.log("Interest bumped to min floor: %s", interest);
+        }
 
         uint256 totalOwed = loan.amountLent + interest;
+        console.log("Total Owed (Principal + Interest): %s", totalOwed);
 
         // Borrower must have approved Vault to spend their THY tokens
+        console.log("Attempting to transfer THY from borrower...");
         thyseasToken.transferFrom(msg.sender, address(this), totalOwed);
+
+        console.log("Burning repayment...");
         thyseasToken.burn(address(this), totalOwed);
 
         loan.isRepaid = true;
         totalActiveLoansAmount -= loan.amountLent; // Remove principal from active liability
+        console.log(
+            "Active Loans Amount Reduced. New Total: %s",
+            totalActiveLoansAmount
+        );
 
         // Return Collateral
+        console.log(
+            "Returning Collateral Token ID: %s",
+            loan.collateralTokenId
+        );
         rwaContract.safeTransferFrom(
             address(this),
             loan.borrower,
@@ -222,7 +282,7 @@ contract LendingVault is Ownable, IERC721Receiver, ReentrancyGuard {
         );
 
         emit RepaymentReceived(loanId, totalOwed);
-        console.log("Loan %s repaid. Total: %s", loanId, totalOwed);
+        console.log("Repayment Successful.");
     }
 
     /**
@@ -246,6 +306,12 @@ contract LendingVault is Ownable, IERC721Receiver, ReentrancyGuard {
         uint256 _leverageRatio,
         uint256 _interestRateBps
     ) external {
+        console.log("--- approveLoan called ---");
+        console.log("Auditor: %s", msg.sender);
+        console.log("Loan ID: %s", loanId);
+        console.log("Proposed Leverage: %s", _leverageRatio);
+        console.log("Proposed Interest: %s bps", _interestRateBps);
+
         require(auditors[msg.sender], "Not an auditor");
         require(loans[loanId].borrower != address(0), "No such loan");
         require(!loanAuditorApprovals[loanId][msg.sender], "Already approved");
@@ -256,9 +322,11 @@ contract LendingVault is Ownable, IERC721Receiver, ReentrancyGuard {
         // Consensus Check
         if (loan.approvalCount == 0) {
             // First approver sets the terms
+            console.log("First approval. Setting terms.");
             loan.leverageRatio = _leverageRatio;
             loan.interestRate = _interestRateBps;
         } else {
+            console.log("Subsequent approval. Checking consensus.");
             // Subsequent approvers must match the set terms
             require(
                 loan.leverageRatio == _leverageRatio,
@@ -273,6 +341,8 @@ contract LendingVault is Ownable, IERC721Receiver, ReentrancyGuard {
         loanAuditorApprovals[loanId][msg.sender] = true;
         loan.approvalCount++;
 
+        console.log("Approval recorded. Current Count: %s", loan.approvalCount);
+
         emit LoanApproved(
             loanId,
             msg.sender,
@@ -280,51 +350,88 @@ contract LendingVault is Ownable, IERC721Receiver, ReentrancyGuard {
             _leverageRatio,
             _interestRateBps
         );
-        console.log(
-            "Auditor %s approved loan %s. Total: %s",
-            msg.sender,
-            loanId,
-            loan.approvalCount
-        );
     }
 
-    /**
-     * @dev Release Funds: Mints stablecoins to borrower.
-     * This is where the "fractional" magic happens.
-     */
     /**
      * @dev Release Funds: Mints stablecoins to borrower.
      * This is where the "fractional" magic happens.
      */
     function releaseFunds(uint256 loanId) external nonReentrant {
+        console.log("--- releaseFunds called ---");
+        console.log("Loan ID: %s", loanId);
+        console.log("Caller: %s", msg.sender); // Anyone can call, but usually borrower or auto
+
         Loan storage loan = loans[loanId];
+        console.log(
+            "Approvals: %s (Required: %s)",
+            loan.approvalCount,
+            MIN_APPROVALS
+        );
         require(loan.approvalCount >= MIN_APPROVALS, "Not enough approvals");
         require(!loan.isReleased, "Already released");
 
         // Bank Safety Check: We don't lend if we don't have enough base asset reserves.
         // Ensure total active loans don't exceed MAX LEVERAGE x total deposited liquidity.
-        require(
-            totalActiveLoansAmount + loan.amountLent <=
-                totalLiquidityDeposited * MAX_PLATFORM_LEVERAGE,
-            "Vault Reserve Limit Reached"
+
+        console.log("Safety Check:");
+        console.log("  Current Active Loans: %s", totalActiveLoansAmount);
+        console.log("  Loan Request Amount:  %s", loan.amountLent);
+        console.log("  Total Liquidity:      %s", totalLiquidityDeposited);
+        console.log("  Max Leverage Ratio:   %s", MAX_PLATFORM_LEVERAGE);
+
+        // Uses the new helper function
+        uint256 maxLoansAllowed = calculateMaxAllowedLoans(
+            totalLiquidityDeposited
         );
+        console.log("  Max Allowed Loan Exposure: %s", maxLoansAllowed);
+
+        (bool isSafe, ) = checkBankSolvency(
+            totalLiquidityDeposited,
+            totalActiveLoansAmount + loan.amountLent
+        );
+
+        require(isSafe, "Vault Reserve Limit Reached: Solvency Check Failed");
 
         loan.isReleased = true;
         loan.startTime = block.timestamp;
         totalActiveLoansAmount += loan.amountLent;
 
+        console.log("Check Passed. Funds Released: %s", loan.amountLent);
+        console.log("Minting THY tokens to Borrower: %s", loan.borrower);
+
         // Mint stablecoins into existence (Fractional Lending)
         thyseasToken.mint(loan.borrower, loan.amountLent);
 
         emit FundsReleased(loanId, loan.amountLent);
-        console.log(
-            "Funds RELEASED for loan %s: %s THY",
-            loanId,
-            loan.amountLent
-        );
     }
 
-    // --- UTILITIES ---
+    // --- UTILITIES & CALCULATIONS ---
+
+    /**
+     * @dev Calculates the maximum loan exposure allowed for a given liquidity amount.
+     * Formula: Liquidity * MAX_PLATFORM_LEVERAGE
+     */
+    function calculateMaxAllowedLoans(
+        uint256 liquidityAmount
+    ) public pure returns (uint256) {
+        return liquidityAmount * MAX_PLATFORM_LEVERAGE;
+    }
+
+    /**
+     * @dev Checks if the bank remains solvent (healthy) after a potential change.
+     * Returns true if TotalLoans <= Liquidity * Leverage
+     */
+    function checkBankSolvency(
+        uint256 newTotalLiquidity,
+        uint256 newTotalLoans
+    ) public pure returns (bool isSafe, uint256 maxAllowed) {
+        maxAllowed = calculateMaxAllowedLoans(newTotalLiquidity);
+        if (newTotalLoans <= maxAllowed) {
+            return (true, maxAllowed);
+        } else {
+            return (false, maxAllowed);
+        }
+    }
 
     function onERC721Received(
         address,
@@ -337,39 +444,86 @@ contract LendingVault is Ownable, IERC721Receiver, ReentrancyGuard {
 
     // Withdraw liquidity (For lenders)
     function withdrawLiquidity(uint256 depositIndex) external nonReentrant {
+        console.log("--- withdrawLiquidity called ---");
+        console.log("Caller: %s", msg.sender);
+        console.log("Deposit Index: %s", depositIndex);
+
         Deposit storage dep = depositsByLender[msg.sender][depositIndex];
         require(!dep.withdrawn, "Already withdrawn");
-        require(block.timestamp >= dep.lockUntil, "Liquidity is locked");
 
-        uint256 amount = dep.amount;
-        uint256 interest = calculateInterest(
-            amount,
-            block.timestamp - dep.timestamp
+        console.log("Deposit Amount: %s", dep.amount);
+        console.log("Lock Until:     %s", dep.lockUntil);
+        console.log("Current Time:   %s", block.timestamp);
+
+        uint256 amountToSend;
+        uint256 penalty = 0;
+        uint256 interest = 0;
+
+        if (block.timestamp >= dep.lockUntil) {
+            // Maturity Reached: Full Principal + Interest
+            interest = calculateInterest(
+                dep.amount,
+                block.timestamp - dep.timestamp
+            );
+            amountToSend = dep.amount + interest;
+            console.log("Maturity reached. Interest earned: %s", interest);
+        } else {
+            // Early Withdrawal: Principal - 5% Penalty, No Interest
+            penalty = (dep.amount * EARLY_WITHDRAWAL_PENALTY) / 10000;
+            amountToSend = dep.amount - penalty;
+            console.log("Early withdrawal. Penalty applied: %s", penalty);
+        }
+
+        uint256 potentialNewLiquidity = totalLiquidityDeposited -
+            (dep.amount - penalty);
+        // Note: If penalty > 0, the penalty amount essentially stays in the bank's equity (totalLiquidityDeposited logic is tricky here)
+        // Strictly speaking, totalLiquidityDeposited tracks "User Deposits".
+        // If we penalize, we reduce totalLiquidityDeposited by the full original amount (since that liability is gone),
+        // but we only pay out (amount - penalty). The penalty effectively becomes protocol equity.
+        // For solvency check, we care about what leaves the vault.
+
+        // Solvency Check:
+        // We verify if the bank still satisfies: TotalLoans <= NewLiquidity * MaxLeverage
+        // Actually, "NewLiquidity" for the purpose of backing loans should be the actual assets held.
+        // If penalty is kept, assets drop by 'amountToSend'.
+        // So potentialNewLiquidity = CurrentLiquidity - amountToSend.
+
+        potentialNewLiquidity = totalLiquidityDeposited - amountToSend; // Accurate reserve tracking
+
+        // Use the helper function to calculate new limits
+        (bool isSafe, uint256 maxLoansAfterWithdrawal) = checkBankSolvency(
+            potentialNewLiquidity,
+            totalActiveLoansAmount
         );
-        uint256 totalToWithdraw = amount + interest;
 
-        // Bank Check: Can only withdraw if it doesn't break our reserve requirement for active loans
+        console.log("Reserve Check:");
+        console.log("  Total Active Loans:        %s", totalActiveLoansAmount);
+        console.log("  Max Loans after withdraw:  %s", maxLoansAfterWithdrawal);
+
         require(
-            totalActiveLoansAmount <=
-                (totalLiquidityDeposited - amount) * MAX_PLATFORM_LEVERAGE,
-            "Liquidity locked in loans"
+            isSafe,
+            "Liquidity locked in loans: Withdrawal would make bank insolvent"
         );
 
         dep.withdrawn = true;
-        lenderBalances[msg.sender] -= amount;
-        totalLiquidityDeposited -= amount;
 
-        // Note: Interest is paid out of the bank's "earnings" (in this MVP, we assume the bank has it or it's minted/available)
-        // For simplicity, we just send it if the contract has it.
-        (bool success, ) = payable(msg.sender).call{value: totalToWithdraw}("");
+        // Update state
+        lenderBalances[msg.sender] -= dep.amount; // Remove full liability from user balance
+
+        // Update Total Liquidity to reflect what remains
+        // TotalLiquidityDeposited was tracking "Amount Deposited".
+        // Technically, if we keep penalty, that penalty is "Free Equity" similar to seedCapital.
+        // So TotalLiquidityDeposited should theoretically decrease by 'amountToSend' (what left) ?
+        // Or if TotalLiquidityDeposited represents "Total Assets Available", then yes, decrease by amountToSend.
+        // Let's assume TotalLiquidityDeposited tracks "Total Available Reserve Assets".
+        totalLiquidityDeposited = potentialNewLiquidity;
+
+        console.log("Sending %s wei to lender...", amountToSend);
+
+        (bool success, ) = payable(msg.sender).call{value: amountToSend}("");
         require(success, "Transfer failed");
 
-        console.log(
-            "Liquidity withdrawn by %s: %s + %s interest",
-            msg.sender,
-            amount,
-            interest
-        );
+        console.log("Withdraw successful.");
     }
 
     function getDepositsCount(address lender) external view returns (uint256) {

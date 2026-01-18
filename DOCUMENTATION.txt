@@ -1,0 +1,73 @@
+BLOCK BANK - PROJECT DOCUMENTATION
+====================================
+
+1. OVERVIEW
+-----------
+This project implements a decentralized banking protocol called "Thyseas". It mimics a traditional fractional reserve banking model on the blockchain.
+- **Lenders** deposit capital (Liquidity) to earn interest.
+- **Borrowers** tokenize Real World Assets (RWA) as collateral to take out loans.
+- **Auditors** (Multi-sig) approve loans and set risk parameters (Leverage & Interest).
+- **Protocol** mints "THY" stablecoins as loan issuance (credit creation).
+
+2. SMART CONTRACTS
+------------------
+Location: `smart_contracts/contracts/`
+
+A. LendingVault.sol (The CORE Bank Logic)
+   - **Role**: Validates solvency, manages liquidity, processes loans.
+   - **Key Functions**:
+     1. `depositLiquidity(uint256 lockDuration)`:
+        - Lenders deposit ETH.
+        - Funds are locked for a duration chosen by the lender (min 30 days, max 365 days).
+        - **Early Withdrawal**: Lenders can withdraw before maturity but incur a **5% penalty** on the principal and forfeit interest.
+        - Tracks `depositsByLender` for individual maturity dates.
+     2. `requestLoan(tokenId, amount, description)`:
+        - Borrower provides `tokenId` (RWA NFT) as collateral.
+        - **Good Faith**: The collateralization is based on **good faith** and trust. The protocol holds the NFT as a digital pledge, trusting the physical asset exists and is controlled by the borrower.
+        - Contract holds the NFT (escrow) until repayment or default.
+     3. `approveLoan(loanId, leverage, interest)`:
+        - Auditors call this. Requires `MIN_APPROVALS` (consensus).
+        - Sets the Loan's logic: Leverage Ratio & Interest Rate.
+     4. `releaseFunds(loanId)`:
+        - Checks Bank Solvency: `TotalLoans <= TotalLiquidity * Leverage`.
+        - Mints `THY` tokens directly to the Borrower.
+     5. `repayLoan(loanId)`:
+        - Borrower pays back Principal + Interest in `THY`.
+        - `THY` tokens are burned (credit destruction).
+        - Collateral (RWA NFT) is returned to Borrower.
+     6. `withdrawLiquidity(depositIndex)`:
+        - Lender withdraws original deposit + accrued interest.
+        - Only allowed if `block.timestamp > lockUntil`.
+        - Checks if withdrawal would cause insolvency.
+
+B. ThyseasToken.sol (The Stablecoin)
+   - **Symbol**: THY
+   - **Type**: ERC20, Mint/Burn
+   - **Logic**: Only the `LendingVault` (Minter Role) can mint new tokens or burn them upon repayment.
+
+C. ThyseasRWA.sol (The Collateral)
+   - **Type**: ERC721 (NFT)
+   - **Logic**: Represents physical assets (Real Estate, Hardware, etc.).
+   - **Metadata**: Stores Valuation (USD), Location, and Verification status.
+
+D. MockBTC.sol
+   - **Type**: ERC20
+   - **Logic**: Simple mock token for testing multi-asset deposits (if extended).
+
+3. FRONTEND APPLICATION
+-----------------------
+Location: `src/`
+- **Framework**: React (Vite) + TypeScript + TailwindCSS.
+- **Core Components**:
+  - `BorrowerDashboard.tsx`: UI for users to view their RWAs, Request Loans, and Repay.
+  - `VaultVisualizer.tsx`: Displays Bank Reserves, Total Loans, and Health/Solvency metrics.
+- **Interaction**: Uses `ethers.js` to communicate with the local Hardhat node.
+
+4. SCRIPTS
+----------
+Location: `smart_contracts/scripts/`
+
+- `deploy_local.js`: Deploys all contracts to the local testnet and links them.
+- `seed_all_assets.js`: Mints dummy RWAs, deposits initial ETH liquidity, and sets up test scenario.
+- `simulate_multisig.js`: Simulates multiple auditor accounts approving a loan.
+- `demo_1to10.js`: specific demo flow showcasing 1:10 fractional reserve mechanics.

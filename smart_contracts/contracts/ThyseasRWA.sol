@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+import "hardhat/console.sol";
+
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
@@ -31,7 +33,9 @@ contract ThyseasRWA is ERC721URIStorage, Ownable {
     constructor()
         ERC721("Thyseas Real World Assets", "THY-RWA")
         Ownable(msg.sender)
-    {}
+    {
+        console.log("ThyseasRWA Deployed");
+    }
 
     /**
      * @dev Mint a new RWA token after manual appraisal.
@@ -50,6 +54,12 @@ contract ThyseasRWA is ERC721URIStorage, Ownable {
         AssetType aType,
         string memory loc
     ) public returns (uint256) {
+        console.log("--- mintAsset called ---");
+        console.log("Caller: %s", msg.sender);
+        console.log("To: %s", to);
+        console.log("Name: %s", name);
+        console.log("Valuation: %s", valUSD);
+
         uint256 tokenId = _nextTokenId++;
         _mint(to, tokenId);
         _setTokenURI(tokenId, uri);
@@ -61,6 +71,9 @@ contract ThyseasRWA is ERC721URIStorage, Ownable {
             isVerified: true,
             location: loc
         });
+
+        console.log("Minted RWA Asset ID: %s", tokenId);
+        console.log("Asset Minting Complete.");
 
         return tokenId;
     }
