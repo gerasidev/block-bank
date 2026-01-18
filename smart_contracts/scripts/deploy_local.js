@@ -77,19 +77,23 @@ async function main() {
     // 3. SEED THE RESERVE
 
     // 3a. ETH Liquidity
-    const depositAmount = hre.ethers.parseEther("50.0"); // Liquidity from Lender
-    await vault.connect(lender).depositLiquidity({ value: depositAmount });
-    console.log(`\n[BANK] Reserve Seeded with: 50.0 ETH (Lender Deposit)`);
+    // 3a. ETH Liquidity (Base Reserve)
+    const depositAmount = hre.ethers.parseEther("1000.0"); // Liquidity from Lender (Big Seed)
+    // 30 days lock (2592000 seconds)
+    await vault.connect(lender).depositLiquidity(2592000, { value: depositAmount });
+    console.log(`\n[BANK] Reserve Seeded with: 1000.0 ETH (Lender Deposit, 30d Lock)`);
 
     // 3b. Admin Capital (ETH)
-    const seedAmount = hre.ethers.parseEther("10.0");
+    // 3b. Admin Capital (ETH)
+    const seedAmount = hre.ethers.parseEther("100.0");
     await vault.seedCapital({ value: seedAmount });
-    console.log(`[BANK] Admin Capital Seeded with: 10.0 ETH (Equity Injection)`);
+    console.log(`[BANK] Admin Capital Seeded with: 100.0 ETH (Equity Injection)`);
 
     // 3c. Seed BTC (Mock)
-    const btcSeedAmount = hre.ethers.parseUnits("100", 18);
+    // 3c. Seed BTC (Mock - Asset Holding)
+    const btcSeedAmount = hre.ethers.parseUnits("1000", 18);
     await mockBTC.transfer(vaultAddress, btcSeedAmount);
-    console.log(`[BANK] Assets Seeded with: 100.0 MockBTC`);
+    console.log(`[BANK] Assets Seeded with: 1000.0 MockBTC`);
 
     // 3d. Seed Thyseas Tokens (Initial Bank Supply)
     const thySeedAmount = hre.ethers.parseUnits("5000000", 18);

@@ -29,7 +29,7 @@ export default function BorrowerDashboard() {
     const [loading, setLoading] = useState(false);
     const [description, setDescription] = useState("");
     const [assetName, setAssetName] = useState("Robotic Arm Pro");
-    const [valuation, setValuation] = useState("1.5");
+
     const [loanAmount, setLoanAmount] = useState("10");
     const [statusMsg, setStatusMsg] = useState("");
     const [myLoans, setMyLoans] = useState<BorrowerLoan[]>([]);
@@ -113,7 +113,7 @@ export default function BorrowerDashboard() {
                 account,
                 "ipfs://trusted-verification-hash",
                 assetName,
-                ethers.parseUnits(valuation.toString(), 18),
+                0, // Valuation irrelevant/hype-based
                 0, // HARDWARE
                 "Berlin Hub #4"
             );
@@ -251,25 +251,14 @@ export default function BorrowerDashboard() {
                                     placeholder="e.g. Robot X-Series #12"
                                 />
                             </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] uppercase text-muted-foreground font-bold tracking-wider">Valuation (BTC)</label>
-                                    <Input
-                                        type="number"
-                                        value={valuation}
-                                        onChange={(e) => setValuation(e.target.value)}
-                                        className="bg-transparent border-border"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] uppercase text-muted-foreground font-bold tracking-wider">Requested Amount (BTC)</label>
-                                    <Input
-                                        type="number"
-                                        value={loanAmount}
-                                        onChange={(e) => setLoanAmount(e.target.value)}
-                                        className="bg-transparent border-border"
-                                    />
-                                </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] uppercase text-muted-foreground font-bold tracking-wider">Requested Amount (BTC)</label>
+                                <Input
+                                    type="number"
+                                    value={loanAmount}
+                                    onChange={(e) => setLoanAmount(e.target.value)}
+                                    className="bg-transparent border-border"
+                                />
                             </div>
 
 
