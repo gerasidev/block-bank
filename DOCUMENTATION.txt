@@ -3,7 +3,8 @@ BLOCK BANK - PROJECT DOCUMENTATION
 
 1. OVERVIEW
 -----------
-This project implements a decentralized banking protocol called "Thyseas". It mimics a traditional fractional reserve banking model on the blockchain.
+This project implements a decentralized banking protocol called "NeoBank" (formerly Thyseas). It mimics a traditional fractional reserve banking model on the blockchain. 
+NOTE: NeoBank is a crypto protocol, not a licensed traditional bank.
 - **Lenders** deposit capital (Liquidity) to earn interest.
 - **Borrowers** tokenize Real World Assets (RWA) as collateral to take out loans.
 - **Auditors** (Multi-sig) approve loans and set risk parameters (Leverage & Interest).

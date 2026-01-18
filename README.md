@@ -1,4 +1,4 @@
-# $THYSEAS Protocol
+# NeoBank ($THYSEAS)
 
 > **The first crypto bank that creates max 5× leverage to fund machines that move atoms AND real world infrastructure.**
 
@@ -6,11 +6,26 @@
 
 ## 🌍 Overview
 
-**$THYSEAS** is a BTC-pegged stablecoin and lending protocol designed for deep-tech hardware startups and real-world asset (RWA) owners.
+**NeoBank** is a crypto protocol (set of smart contracts) designed for deep-tech hardware startups and real-world asset (RWA) owners. **Disclaimer**: NeoBank is a decentralized protocol, not a licensed financial institution. 
 
-THYSEAS is built on **TRUST**. We operate like a traditional bank: individuals deposit liquidity, which is then used to fund physical infrastructure through a fractional reserve system.
+*Note: In blockchain, a "Protocol" is simply the set of rules defined in the smart contract code. Yes, this is a smart contract, but we call it a protocol because it enforces the rules of interaction between lenders, borrowers, and the bank.*
 
-We are building a future where capital flows to those building the physical infrastructure of tomorrow, from robotics to real estate.
+NeoBank is built on **TRUST**. We operate like a traditional bank: individuals deposit liquidity, which is then used to fund physical infrastructure through a fractional reserve system.
+
+We are building a future where capital flows to those building the physical infrastructure of tomorrow, from robotics to hardware.
+
+> **The Thesis**: "Robotics is going to be bigger than the internet and the combustion engine combined."
+
+### 🆚 NeoBank vs Traditional Banks
+- **Traditional Banks**: Mostly fund Real Estate. They reward the **lazy**—those who sit on land waiting for appreciation.
+- **NeoBank**: Funds Machines, Robotics, and Hardware. We reward the **builders**—those who create the future.
+
+### 🔮 Future Promise & Hype
+We work on **hype** and **future promise**. 
+- We don't just bank grounded assets; we bank **conviction**.
+- If a startup pledges motors or hardware, we accept it on **Good Faith**.
+- We operate on a fractional reserve basis because we believe the future value of these machines vastly outweighs their current scrap value.
+- We are a **Creative Bank** for the Machine Age. 
 
 **Note on Profit Model**: The company operates as a hybrid entity—not purely for-profit, nor non-profit. It exists to capture upside like a traditional startup (e.g., OpenAI model) while serving a foundational infrastructure role.
 
@@ -40,7 +55,9 @@ $THYSEAS utilizes a **5x Leverage Engine** in the `LendingVault`:
 1. **Traditional Deposits**: Lenders (individuals) deposit BTC/ETH into the vault. These funds are locked for **30 days**.
 2. **Interest Payments**: Depositors earn a yield (APR) for providing the bank's base reserves.
 3. **Borrowers Lock Collateral**: Physical hardware and/or future payment contracts are verified and locked.
-4. **Militated Fractional Minting**: The bank can mint up to 5x the value of the locked collateral, provided the circulating supply does not exceed 5x the vault's total liquid reserves.
+4. **Militated Fractional Minting**: The bank can mint up to 5x the value of the locked collateral. 
+    - **Note on Hype**: We value assets based on **HYPE** and future potential, not just scrap value. If a robot is "cool" and "the future", we loan against that narrative. 
+    - **Traditional Mechanics**: Just like a traditional bank, we use leverage to create credit (loans) that exceeds the base reserves, banking on the future success of these deep-tech ventures.
 5. **Anti-Bank Run Logic**: The lock-in period and withdrawal limit (relative to active loans) protect the protocol from sudden liquidation.
 6. **Manual Release**: All liquidity releases require a 2-step manual audit and approval flow.
 
@@ -72,12 +89,6 @@ npm install
 npm run dev
 ```
 
-## 📅 Roadmap
-
-- **Q1 2026**: Testnet Launch (5 pilot teams)
-- **Q2 2026**: Mainnet Genesis ($THYSEAS Token Generation)
-- **Q3 2026**: Open Applications & Repo Partner Integration
-- **Q4 2026**: Governance DAO Live
 
 ## 🤝 Contributing
 

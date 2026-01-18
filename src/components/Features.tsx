@@ -1,11 +1,11 @@
 import { motion } from 'framer-motion';
 import { Bitcoin, Cpu, ShieldCheck, Zap } from 'lucide-react';
-import chipImg from '../assets/chip.png';
+
 
 const features = [
     {
         icon: <Bitcoin className="w-10 h-10 text-primary" />,
-        title: "$THYSEAS Stablecoin",
+        title: "NeoBank",
         desc: "ERC-20 token pegged 1:1 to BTC value. Mint by locking BTC via tBTC or native layers. Stability via open arbitrage."
     },
     {
@@ -45,33 +45,24 @@ export default function Features() {
                     ))}
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-16 mt-32 items-center">
-                    <div>
-                        <img
-                            src={chipImg}
-                            alt="AI Chip Wafer"
-                            className="w-full rounded-xl border border-border grayscale hover:grayscale-0 transition-all duration-700 shadow-xl"
-                        />
-                    </div>
-                    <div>
-                        <h2 className="text-3xl md:text-4xl font-bold mb-6 text-foreground">Hardware as <span className="text-muted-foreground">Collateral</span></h2>
-                        <p className="text-lg text-muted-foreground mb-8">
-                            We tokenize physical assets into ERC-721 NFTs with rich metadata.
-                            Your robots, GPUs, bioreactors, and lab equipment act as the bedrock for your liquidity.
-                        </p>
-                        <ul className="space-y-4">
-                            {[
-                                'Real-World Asset (RWA) Tokenization',
-                                'Legal Seizure & Repo Partner Network',
-                                'On-chain Dutch Auctions for Liquidations',
-                                'No Real Estate. Ever.'
-                            ].map((item, i) => (
-                                <li key={i} className="flex items-center text-lg">
-                                    <Cpu className="w-5 h-5 text-primary mr-3 flex-shrink-0" />
-                                    {item}
-                                </li>
-                            ))}
-                        </ul>
+                <div className="max-w-4xl mx-auto mt-32 text-center">
+                    <h2 className="text-3xl md:text-4xl font-bold mb-6 text-foreground">Hardware as <span className="text-muted-foreground">Collateral</span></h2>
+                    <p className="text-lg text-muted-foreground mb-12 max-w-2xl mx-auto">
+                        We tokenize physical assets into ERC-721 NFTs with rich metadata.
+                        Your robots, GPUs, bioreactors, and lab equipment act as the bedrock for your liquidity.
+                    </p>
+                    <div className="grid md:grid-cols-2 gap-8 text-left max-w-2xl mx-auto">
+                        {[
+                            'Real-World Asset (RWA) Tokenization',
+                            'Legal Seizure & Repo Partner Network',
+                            'On-chain Dutch Auctions for Liquidations',
+                            'No Real Estate. Ever.'
+                        ].map((item, i) => (
+                            <div key={i} className="flex items-center text-lg p-4 rounded-lg bg-card border border-border">
+                                <Cpu className="w-5 h-5 text-primary mr-3 flex-shrink-0" />
+                                {item}
+                            </div>
+                        ))}
                     </div>
                 </div>
             </motion.div>

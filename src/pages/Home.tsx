@@ -1,13 +1,13 @@
 import Hero from '../components/Hero';
 import Features from '../components/Features';
-import Roadmap from '../components/Roadmap';
+
 
 function Home() {
     return (
         <>
             <Hero />
             <Features />
-            <Roadmap />
+
             <div className="container py-24 text-center">
                 <h2 className="text-4xl md:text-5xl font-bold mb-8 text-foreground">
                     Ready to build the future?
