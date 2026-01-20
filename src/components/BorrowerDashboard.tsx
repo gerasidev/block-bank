@@ -1,19 +1,15 @@
 import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Loader2, Zap, Plus, ClipboardList } from 'lucide-react';
 import LendingVaultABI from '../../smart_contracts/artifacts/contracts/LendingVault.sol/LendingVault.json';
 import ThyseasRWA_ABI from '../../smart_contracts/artifacts/contracts/ThyseasRWA.sol/ThyseasRWA.json';
 import ThyseasToken_ABI from '../../smart_contracts/artifacts/contracts/ThyseasToken.sol/ThyseasToken.json';
+import { CONTRACT_ADDRESSES } from '../config/contracts';
 
 // Addresses from our deploy_local.js output
-const VAULT_ADDRESS = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9";
-const RWA_ADDRESS = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
-const THYSEAS_TOKEN_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+const VAULT_ADDRESS = CONTRACT_ADDRESSES.LENDING_VAULT;
+const RWA_ADDRESS = CONTRACT_ADDRESSES.THYSEAS_RWA;
+const THYSEAS_TOKEN_ADDRESS = CONTRACT_ADDRESSES.THYSEAS_TOKEN;
 
 interface BorrowerLoan {
     id: number;
@@ -34,24 +30,29 @@ export default function BorrowerDashboard() {
     const [statusMsg, setStatusMsg] = useState("");
     const [myLoans, setMyLoans] = useState<BorrowerLoan[]>([]);
 
-    const connectWallet = async () => {
-        if (window.ethereum) {
-            try {
-                const provider = new ethers.BrowserProvider(window.ethereum as any);
-                const network = await provider.getNetwork();
-                console.log("Connected to network:", network.name, network.chainId);
+    const connectWallet = async (forceSelect = false) => {
+        if (!window.ethereum) return;
 
-                const signer = await provider.getSigner();
-                const address = await signer.getAddress();
-                setAccount(address);
-                fetchMyLoans(address, provider);
-            } catch (err: any) {
-                console.error("Wallet connection failed", err);
-                if (err.code === -32002) {
-                    setStatusMsg("MetaMask is pending another request. Please open MetaMask.");
-                } else {
-                    setStatusMsg("Connection Error: " + (err.message || "Unknown error"));
-                }
+        // Respect explicit disconnect unless forced
+        if (!forceSelect && localStorage.getItem('wallet_disconnected') === 'true') {
+            return;
+        }
+
+        try {
+            const provider = new ethers.BrowserProvider(window.ethereum as any);
+            const network = await provider.getNetwork();
+            console.log("Connected to network:", network.name, network.chainId);
+
+            const signer = await provider.getSigner();
+            const address = await signer.getAddress();
+            setAccount(address);
+            fetchMyLoans(address, provider);
+        } catch (err: any) {
+            console.error("Wallet connection failed", err);
+            if (err.code === -32002) {
+                setStatusMsg("MetaMask is pending another request. Please open MetaMask.");
+            } else {
+                setStatusMsg("Connection Error: " + (err.message || "Unknown error"));
             }
         }
     };
@@ -204,163 +205,169 @@ export default function BorrowerDashboard() {
     };
 
     return (
-        <div className="container mx-auto p-6 space-y-8 animate-in fade-in duration-700">
-            <div className="flex justify-between items-end border-b border-white/5 pb-6">
-                <div>
-                    <Badge variant="outline" className="mb-2 border-primary/20 text-primary bg-primary/5">Borrower Access</Badge>
-                    <h1 className="text-4xl font-bold tracking-tighter text-foreground">Borrower Dashboard</h1>
-                    <p className="text-muted-foreground mt-2">Manage your physical asset collateral and request bank leverage.</p>
+        <div className="container mx-auto p-8 space-y-12">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b-4 border-black pb-8">
+                <div className="space-y-4">
+                    <div className="inline-block bg-zinc-950 text-white px-3 py-1 text-[10px] font-black uppercase tracking-widest border-2 border-black neo-shadow-green">
+                        ACCESS_LEVEL: BORROWER
+                    </div>
+                    <h1 className="text-6xl font-black uppercase tracking-tighter leading-none">
+                        Capital <br /> Request
+                    </h1>
+                    <p className="text-sm font-bold opacity-70 uppercase tracking-widest max-w-xl">
+                        Lock physical assets. Stream digital liquidity. Zero trust verification architecture.
+                    </p>
                 </div>
                 {account && (
-                    <div className="text-right">
-                        <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest mb-1">Your Identity</p>
-                        <Badge variant="secondary" className="font-mono px-3 py-1 bg-secondary border-border hover:bg-secondary/80 cursor-pointer">
-                            {account.slice(0, 10)}...{account.slice(-8)}
-                        </Badge>
+                    <div className="bg-white p-6 border-4 border-black neo-shadow-lg text-right">
+                        <p className="text-[10px] font-black uppercase mb-2 opacity-50 tracking-tighter italic">AUTHENTICATED_IDENTITY</p>
+                        <div className="font-black text-xs break-all bg-zinc-100 p-2 border-2 border-black">
+                            {account}
+                        </div>
                     </div>
                 )}
             </div>
 
-            <div className="grid lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-1 space-y-6">
-                    <Card className="bg-card border-border shadow-sm">
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2 text-xl font-bold">
-                                <Plus className="h-5 w-5 text-primary" />
-                                Create Loan Request
-                            </CardTitle>
-                            <CardDescription>Lock atoms, borrow bits.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-5">
+            <div className="grid lg:grid-cols-12 gap-10">
+                <div className="lg:col-span-4 space-y-8">
+                    <div className="neo-card bg-yellow-400 !p-8 border-4">
+                        <div className="space-y-6">
                             <div className="space-y-2">
-                                <label className="text-[10px] uppercase text-muted-foreground font-bold tracking-wider">Company / Asset Description</label>
-                                <Input
-                                    value={description}
-                                    onChange={(e) => setDescription(e.target.value)}
-                                    className="bg-transparent border-border focus:ring-primary"
-                                    placeholder="e.g. Series A Tech Startup, Robotic Arm for Factory Line 1"
-                                />
+                                <h2 className="text-2xl font-black uppercase flex items-center gap-2">
+                                    <Plus className="h-6 w-6 border-2 border-black bg-white" />
+                                    New Request
+                                </h2>
+                                <p className="text-[10px] font-bold uppercase opacity-70">Convert atoms to bits instantly.</p>
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-[10px] uppercase text-muted-foreground font-bold tracking-wider">Physical Asset name</label>
-                                <Input
-                                    value={assetName}
-                                    onChange={(e) => setAssetName(e.target.value)}
-                                    className="bg-transparent border-border focus:ring-primary"
-                                    placeholder="e.g. Robot X-Series #12"
-                                />
+                            <div className="space-y-4">
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-black uppercase tracking-widest opacity-70 italic">Asset Description</label>
+                                    <input
+                                        value={description}
+                                        onChange={(e) => setDescription(e.target.value)}
+                                        className="w-full bg-white border-4 border-black p-3 font-black text-sm focus:bg-zinc-50 outline-none"
+                                        placeholder="E.G. SERIES A STARTUP"
+                                    />
+                                </div>
+
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-black uppercase tracking-widest opacity-70 italic">Registry Name</label>
+                                    <input
+                                        value={assetName}
+                                        onChange={(e) => setAssetName(e.target.value)}
+                                        className="w-full bg-white border-4 border-black p-3 font-black text-sm focus:bg-zinc-50 outline-none"
+                                        placeholder="E.G. PROJECT PHOENIX #01"
+                                    />
+                                </div>
+
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-black uppercase tracking-widest opacity-70 italic">Leverage Amount (ETH)</label>
+                                    <input
+                                        type="number"
+                                        value={loanAmount}
+                                        onChange={(e) => setLoanAmount(e.target.value)}
+                                        className="w-full bg-white border-4 border-black p-3 font-black text-sm focus:bg-zinc-50 outline-none"
+                                    />
+                                </div>
+
+                                <button
+                                    className="w-full bg-[#10b981] text-white py-4 border-4 border-black neo-shadow hover:neo-shadow-none active:translate-x-[2px] active:translate-y-[2px] transition-all font-black text-lg uppercase tracking-widest flex items-center justify-center gap-3 disabled:opacity-50"
+                                    onClick={handleMintAndRequest}
+                                    disabled={loading || !account || !description}
+                                >
+                                    {loading ? <Loader2 className="animate-spin h-6 w-6" /> : <Zap className="h-6 w-6" />}
+                                    {loading ? "PROCESSING..." : "INIT_REQUEST"}
+                                </button>
+
+                                {statusMsg && (
+                                    <div className="bg-white border-2 border-black p-2 text-center">
+                                        <p className={`text-[10px] font-black uppercase tracking-tighter ${statusMsg.includes("Error") ? "text-red-600" : "text-zinc-600 italic animate-pulse"}`}>
+                                            {statusMsg}
+                                        </p>
+                                    </div>
+                                )}
                             </div>
-                            <div className="space-y-2">
-                                <label className="text-[10px] uppercase text-muted-foreground font-bold tracking-wider">Requested Amount (ETH)</label>
-                                <Input
-                                    type="number"
-                                    value={loanAmount}
-                                    onChange={(e) => setLoanAmount(e.target.value)}
-                                    className="bg-transparent border-border"
-                                />
-                            </div>
-
-
-
-                            <Button
-                                className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-11 font-bold shadow-sm"
-                                onClick={handleMintAndRequest}
-                                disabled={loading || !account || !description}
-                            >
-                                {loading ? <Loader2 className="animate-spin mr-2 h-4 w-4" /> : <Zap className="mr-2 h-4 w-4" />}
-                                {loading ? "Executing Protocol..." : "Mint & Request Loan"}
-                            </Button>
-
-                            {statusMsg && (
-                                <p className={`text-[11px] text-center font-medium ${statusMsg.includes("Error") ? "text-destructive" : "text-primary animate-pulse"}`}>
-                                    {statusMsg}
-                                </p>
-                            )}
-                        </CardContent>
-                    </Card>
+                        </div>
+                    </div>
                 </div>
 
-                <div className="lg:col-span-2">
-                    <Card className="bg-card border-border h-full shadow-sm">
-                        <CardHeader className="flex flex-row items-center justify-between">
-                            <div>
-                                <CardTitle className="text-xl font-bold flex items-center gap-2 text-foreground">
-                                    <ClipboardList className="h-5 w-5 text-primary" />
-                                    Personal Resource Ledger
-                                </CardTitle>
-                                <CardDescription>Tracking your active leverage and collateral status.</CardDescription>
+                <div className="lg:col-span-8">
+                    <div className="neo-card bg-white !p-0 border-4 h-full">
+                        <div className="bg-black text-white px-8 py-6 flex justify-between items-center border-b-4 border-black">
+                            <div className="space-y-1">
+                                <h2 className="text-2xl font-black uppercase tracking-widest flex items-center gap-3">
+                                    <ClipboardList className="h-6 w-6" />
+                                    Active Protocols
+                                </h2>
+                                <p className="text-[10px] font-bold opacity-50 uppercase">Individual Transaction Ledger</p>
                             </div>
-                            <Button variant="ghost" size="sm" onClick={() => account && fetchMyLoans(account, new ethers.BrowserProvider(window.ethereum as any))} className="text-xs hover:bg-secondary">
-                                Refresh
-                            </Button>
-                        </CardHeader>
-                        <CardContent>
-                            <Table>
-                                <TableHeader>
-                                    <TableRow className="border-white/5 hover:bg-transparent">
-                                        <TableHead className="text-slate-500 uppercase text-[10px] font-bold">Loan ID</TableHead>
-                                        <TableHead className="text-slate-500 uppercase text-[10px] font-bold">Injected Capital</TableHead>
-                                        <TableHead className="text-slate-500 uppercase text-[10px] font-bold">Audit Signatures</TableHead>
-                                        <TableHead className="text-slate-500 uppercase text-[10px] font-bold">Protocol Status</TableHead>
-                                        <TableHead className="text-slate-500 uppercase text-[10px] font-bold text-right">Actions</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
+                            <button
+                                onClick={() => account && fetchMyLoans(account, new ethers.BrowserProvider(window.ethereum as any))}
+                                className="bg-blue-400 text-black p-2 border-2 border-black neo-shadow hover:neo-shadow-none transition-all text-[10px] font-black"
+                            >
+                                REFRESH
+                            </button>
+                        </div>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left border-collapse">
+                                <thead className="bg-zinc-100 border-b-4 border-black">
+                                    <tr>
+                                        <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest">STREAM_ID</th>
+                                        <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest">LIQUIDITY</th>
+                                        <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest">SIGNATURES</th>
+                                        <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest">STATUS</th>
+                                        <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-right">OPS</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
                                     {myLoans.length === 0 ? (
-                                        <TableRow>
-                                            <TableCell colSpan={5} className="text-center py-12 text-muted-foreground italic">
-                                                No active protocol streams found for this identity.
-                                            </TableCell>
-                                        </TableRow>
+                                        <tr>
+                                            <td colSpan={5} className="px-8 py-20 text-center font-black opacity-30 uppercase italic text-xl">
+                                                NO_ACTIVE_STREAMS_DETECTED
+                                            </td>
+                                        </tr>
                                     ) : myLoans.map((loan) => (
-                                        <TableRow key={loan.id} className="border-white/5 hover:bg-white/5 transition-colors group">
-                                            <TableCell className="font-mono text-sm text-muted-foreground italic">#{loan.id}</TableCell>
-                                            <TableCell className="font-bold text-foreground tracking-widest">{loan.amount} <span className="text-[10px] text-muted-foreground ml-1">ETH</span></TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center gap-2">
-                                                    <span className={`text-xs font-bold ${loan.approvals >= 2 ? "text-foreground" : "text-muted-foreground"}`}>
-                                                        {loan.approvals}/2
-                                                    </span>
-                                                    <div className="h-1 w-16 bg-secondary rounded-full overflow-hidden">
+                                        <tr key={loan.id} className="border-b-2 border-zinc-100 hover:bg-zinc-50 transition-colors">
+                                            <td className="px-8 py-6 font-mono text-sm opacity-50 italic">#{loan.id}</td>
+                                            <td className="px-8 py-6 font-black text-lg tracking-tighter">
+                                                {loan.amount} <span className="text-[10px] opacity-40">ETH</span>
+                                            </td>
+                                            <td className="px-8 py-6">
+                                                <div className="flex flex-col gap-1">
+                                                    <span className="text-[10px] font-black italic">{loan.approvals}/2 SIGNED</span>
+                                                    <div className="h-2 w-28 bg-white border-2 border-black p-0.5">
                                                         <div
-                                                            className="h-full transition-all duration-1000 bg-primary"
+                                                            className="h-full bg-blue-500 border border-black transition-all duration-1000"
                                                             style={{ width: `${(loan.approvals / 2) * 100}%` }}
                                                         />
                                                     </div>
                                                 </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge
-                                                    variant="outline"
-                                                    className={`
-                                                        text-[10px] uppercase tracking-tighter
-                                                        ${loan.isReleased ? 'border-primary text-primary bg-primary/5' :
-                                                            loan.isRepaid ? 'border-border text-muted-foreground bg-secondary' :
-                                                                'border-border text-foreground bg-secondary'}
-                                                    `}
-                                                >
+                                            </td>
+                                            <td className="px-8 py-6">
+                                                <div className={`
+                                                    inline-block px-3 py-1 border-2 border-black text-[10px] font-black uppercase skew-x-[-10deg]
+                                                    ${loan.isReleased ? 'bg-green-400' : 'bg-yellow-100'}
+                                                `}>
                                                     {loan.status}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell className="text-right">
+                                                </div>
+                                            </td>
+                                            <td className="px-8 py-6 text-right">
                                                 {loan.isReleased && !loan.isRepaid && (
-                                                    <Button
-                                                        size="sm"
-                                                        variant="ghost"
-                                                        className="h-7 text-xs text-red-400 hover:text-red-300 hover:bg-red-900/10"
+                                                    <button
+                                                        className="bg-red-400 text-black px-4 py-2 border-2 border-black neo-shadow hover:neo-shadow-none active:translate-x-[1px] font-black text-[10px] uppercase"
                                                         onClick={() => handleRepay(loan.id, loan.amount)}
                                                     >
-                                                        Repay Loan
-                                                    </Button>
+                                                        REPAY_LIQUIDITY
+                                                    </button>
                                                 )}
-                                            </TableCell>
-                                        </TableRow>
+                                            </td>
+                                        </tr>
                                     ))}
-                                </TableBody>
-                            </Table>
-                        </CardContent>
-                    </Card>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

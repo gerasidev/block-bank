@@ -1,90 +1,91 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap');
 
 @theme {
-  --color-border: hsl(240 5.9% 90%);
-  --color-input: hsl(240 5.9% 90%);
-  --color-ring: hsl(240 5.9% 10%);
-  --color-background: 0 0% 100%;
-  --color-foreground: hsl(240 10% 3.9%);
+  --color-border: #000000;
+  --color-input: #000000;
+  --color-ring: #000000;
+  --color-background: #ffffff;
+  --color-foreground: #000000;
 
-  --color-primary: hsl(240 5.9% 10%);
-  --color-primary-foreground: hsl(0 0% 98%);
+  --color-primary: #000000;
+  --color-primary-foreground: #ffffff;
 
-  --color-secondary: hsl(240 4.8% 95.9%);
-  --color-secondary-foreground: hsl(240 5.9% 10%);
+  --color-secondary: #f4f4f5;
+  --color-secondary-foreground: #000000;
 
-  --color-destructive: hsl(0 84.2% 60.2%);
-  --color-destructive-foreground: hsl(0 0% 98%);
+  --color-destructive: #ff4444;
+  --color-destructive-foreground: #ffffff;
 
-  --color-muted: hsl(240 4.8% 95.9%);
-  --color-muted-foreground: hsl(240 3.8% 46.1%);
+  --color-muted: #f4f4f5;
+  --color-muted-foreground: #71717a;
 
-  --color-accent: hsl(240 4.8% 95.9%);
-  --color-accent-foreground: hsl(240 5.9% 10%);
+  --color-accent: #10b981;
+  --color-accent-foreground: #ffffff;
 
-  --color-popover: 0 0% 100%;
-  --color-popover-foreground: hsl(240 10% 3.9%);
+  --color-popover: #ffffff;
+  --color-popover-foreground: #000000;
 
-  --color-card: 0 0% 100%;
-  --color-card-foreground: hsl(240 10% 3.9%);
+  --color-card: #ffffff;
+  --color-card-foreground: #000000;
 
-  --radius: 0.5rem;
-  --radius-lg: var(--radius);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-sm: calc(var(--radius) - 4px);
-}
+  --radius: 0px;
+  --radius-lg: 0px;
+  --radius-md: 0px;
+  --radius-sm: 0px;
 
-:root {
-  --background: 0 0% 100%;
-  --foreground: 240 10% 3.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 240 10% 3.9%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 240 10% 3.9%;
-  --primary: 240 5.9% 10%;
-  --primary-foreground: 0 0% 98%;
-  --secondary: 240 4.8% 95.9%;
-  --secondary-foreground: 240 5.9% 10%;
-  --muted: 240 4.8% 95.9%;
-  --muted-foreground: 240 3.8% 46.1%;
-  --accent: 240 4.8% 95.9%;
-  --accent-foreground: 240 5.9% 10%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 240 5.9% 90%;
-  --input: 240 5.9% 90%;
-  --ring: 240 5.9% 10%;
-  --radius: 0.5rem;
-}
-
-.dark {
-  --background: 240 10% 3.9%;
-  --foreground: 0 0% 98%;
-  --card: 240 10% 3.9%;
-  --card-foreground: 0 0% 98%;
-  --popover: 240 10% 3.9%;
-  --popover-foreground: 0 0% 98%;
-  --primary: 0 0% 98%;
-  --primary-foreground: 240 5.9% 10%;
-  --secondary: 240 3.7% 15.9%;
-  --secondary-foreground: 0 0% 98%;
-  --muted: 240 3.7% 15.9%;
-  --muted-foreground: 240 5% 64.9%;
-  --accent: 240 3.7% 15.9%;
-  --accent-foreground: 0 0% 98%;
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 240 3.7% 15.9%;
-  --input: 240 3.7% 15.9%;
-  --ring: 240 4.9% 83.9%;
+  --font-mono: "JetBrains Mono", monospace;
 }
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-black;
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-white text-black antialiased font-mono;
   }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-extrabold uppercase tracking-tight;
+  }
+}
+
+@utility neo-shadow {
+  box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+}
+
+@utility neo-shadow-lg {
+  box-shadow: 8px 8px 0px 0px rgba(0, 0, 0, 1);
+}
+
+@utility neo-shadow-green {
+  box-shadow: 4px 4px 0px 0px #10b981;
+}
+
+@utility neo-shadow-yellow {
+  box-shadow: 4px 4px 0px 0px #fbbf24;
+}
+
+@utility neo-shadow-orange {
+  box-shadow: 4px 4px 0px 0px #f97316;
+}
+
+@utility neo-shadow-blue {
+  box-shadow: 4px 4px 0px 0px #3b82f6;
+}
+
+@utility neo-btn {
+  @apply border-2 border-black transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none;
+  box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+}
+
+@utility neo-card {
+  @apply border-2 border-black bg-white p-6;
+  box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
 }

@@ -1,71 +1,91 @@
-import { motion } from 'framer-motion';
-import { Bitcoin, Cpu, ShieldCheck, Zap } from 'lucide-react';
-
+import { Cpu, ShieldCheck, Zap, Activity } from 'lucide-react';
 
 const features = [
     {
-        icon: <Bitcoin className="w-10 h-10 text-primary" />,
-        title: "NeoBank",
-        desc: "ERC-20 token pegged 1:1 to ETH value. Mint by locking ETH via native layers. Stability via open arbitrage."
+        icon: <Activity className="w-10 h-10" />,
+        color: "bg-blue-400",
+        title: "Liquidity Peg",
+        desc: "ERC-20 token pegged 1:1 to ETH value. Mint by locking ETH via native layers. Arbitrage-stabilized liquidity."
     },
     {
-        icon: <Zap className="w-10 h-10 text-primary" />,
-        title: "Deep-Tech Lending",
-        desc: "Get up to 25x leverage. 6-24 month terms with 8-18% APY. Designed for hardware founders who need to move fast."
+        icon: <Zap className="w-10 h-10" />,
+        color: "bg-yellow-400",
+        title: "Deep-Tech Credit",
+        desc: "Up to 5x leverage. 6-24 month lockups with dynamic yield. Purpose-built for high-capex hardware scaling."
     },
     {
-        icon: <ShieldCheck className="w-10 h-10 text-primary" />,
-        title: "Community Audited",
-        desc: "Loans are verified by stakers and community auditors. Accurate audits are rewarded, false claims smashed."
+        icon: <ShieldCheck className="w-10 h-10" />,
+        color: "bg-[#10b981]",
+        title: "Audit Layer",
+        desc: "Loans verified by a decentralized network of hardware experts. Multi-signature release enforcement."
     }
 ];
 
 export default function Features() {
     return (
-        <section id="features" className="container py-24">
-            <motion.div
-                initial={{ y: 50, opacity: 0 }}
-                whileInView={{ y: 0, opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8 }}
-            >
-                <div className="text-center mb-16">
-                    <h2 className="text-3xl md:text-5xl font-bold text-foreground">
-                        Protocol <span className="text-muted-foreground">Architecture</span>
+        <section id="features" className="container py-24 space-y-32">
+            <div>
+                <div className="text-center mb-20">
+                    <h2 className="text-6xl font-black uppercase tracking-tighter italic border-b-8 border-black inline-block pb-4">
+                        Protocol Architecture
                     </h2>
                 </div>
 
-                <div className="grid md:grid-cols-3 gap-8">
+                <div className="grid md:grid-cols-3 gap-10">
                     {features.map((f, i) => (
-                        <div key={i} className="group p-8 rounded-xl border border-border bg-card hover:bg-secondary transition-all duration-300 hover:-translate-y-1">
-                            <div className="mb-6 bg-primary/5 w-fit p-3 rounded-lg group-hover:bg-primary/10 transition-colors duration-300">{f.icon}</div>
-                            <h3 className="text-xl font-bold mb-4">{f.title}</h3>
-                            <p className="text-muted-foreground leading-relaxed">{f.desc}</p>
+                        <div key={i} className={`neo-card ${f.color} border-4 p-10 flex flex-col gap-6 rotate-[${(i % 2 === 0 ? '-1' : '1')}deg]`}>
+                            <div className="bg-white border-2 border-black p-4 w-fit neo-shadow-none">
+                                {f.icon}
+                            </div>
+                            <h3 className="text-3xl font-black uppercase tracking-tight">{f.title}</h3>
+                            <p className="font-bold text-sm leading-relaxed opacity-80 uppercase tracking-wide">
+                                {f.desc}
+                            </p>
                         </div>
                     ))}
                 </div>
+            </div>
 
-                <div className="max-w-4xl mx-auto mt-32 text-center">
-                    <h2 className="text-3xl md:text-4xl font-bold mb-6 text-foreground">Hardware as <span className="text-muted-foreground">Collateral</span></h2>
-                    <p className="text-lg text-muted-foreground mb-12 max-w-2xl mx-auto">
-                        We tokenize physical assets into ERC-721 NFTs with rich metadata.
-                        Your robots, GPUs, bioreactors, and lab equipment act as the bedrock for your liquidity.
-                    </p>
-                    <div className="grid md:grid-cols-2 gap-8 text-left max-w-2xl mx-auto">
-                        {[
-                            'Real-World Asset (RWA) Tokenization',
-                            'Legal Seizure & Repo Partner Network',
-                            'On-chain Dutch Auctions for Liquidations',
-                            'No Real Estate. Ever.'
-                        ].map((item, i) => (
-                            <div key={i} className="flex items-center text-lg p-4 rounded-lg bg-card border border-border">
-                                <Cpu className="w-5 h-5 text-primary mr-3 flex-shrink-0" />
-                                {item}
-                            </div>
-                        ))}
+            <div className="max-w-5xl mx-auto">
+                <div className="grid lg:grid-cols-2 gap-16 items-center">
+                    <div className="space-y-8">
+                        <h2 className="text-6xl font-black uppercase leading-[0.9] tracking-tighter">
+                            Atoms <br />
+                            <span className="text-blue-500">as Collateral</span>
+                        </h2>
+                        <p className="text-xl font-bold uppercase tracking-widest opacity-70">
+                            We tokenize physical assets into ERC-721 NFTs.
+                            Your robots, GPUs, and lab equipment act as the bedrock for protocol liquidity.
+                        </p>
+
+                        <div className="space-y-4">
+                            {[
+                                'RWA Tokenization Engine',
+                                'Legal Seizure Network',
+                                'Dutch Auction Liquidations',
+                                'Strict No Real Estate Policy'
+                            ].map((item, i) => (
+                                <div key={i} className="flex items-center text-sm font-black uppercase p-4 border-2 border-black bg-white neo-shadow-none hover:translate-x-2 transition-transform cursor-default">
+                                    <Cpu className="w-5 h-5 mr-4 flex-shrink-0" />
+                                    {item}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="relative">
+                        <div className="bg-zinc-100 border-4 border-black p-12 neo-shadow-lg rotate-2 flex flex-col items-center justify-center text-center space-y-6">
+                            <div className="text-8xl font-black italic">HARD</div>
+                            <div className="text-4xl font-black opacity-30 uppercase tracking-[0.5em]">MONEY</div>
+                            <div className="w-full h-2 bg-black"></div>
+                            <p className="text-[10px] font-black uppercase tracking-widest leading-relaxed">
+                                VERIFIED_HARDWARE_BACKED_CREDIT_SYSTEM_001
+                            </p>
+                        </div>
+                        <div className="absolute -top-8 -left-8 w-20 h-20 bg-yellow-400 border-4 border-black neo-shadow -z-10 -rotate-12"></div>
                     </div>
                 </div>
-            </motion.div>
+            </div>
         </section>
     );
 }

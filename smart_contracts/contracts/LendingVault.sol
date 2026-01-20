@@ -111,33 +111,30 @@ contract LendingVault is Ownable, IERC721Receiver, ReentrancyGuard {
     // --- LENDER FUNCTIONS ---
 
     /**
-     * @dev Lenders deposit base assets (ETH) to provide the reserve for the bank.
-     */
-    /**
-     * @dev Lenders deposit base assets (ETH) to provide the reserve for the bank.
+     * @dev Lenders deposit base assets (THY) to provide the reserve for the bank.
+     * @param amount Amount of THY to deposit.
      * @param lockDurationSeconds Duration to lock funds (min 30 days, max 365 days).
      */
     function depositLiquidity(
+        uint256 amount,
         uint256 lockDurationSeconds
-    ) external payable nonReentrant {
+    ) external nonReentrant {
         console.log("--- depositLiquidity called ---");
         console.log("Caller: %s", msg.sender);
-        console.log("Amount: %s wei", msg.value);
+        console.log("Amount: %s THY", amount);
 
-        require(msg.value > 0, "Must deposit something");
+        require(amount > 0, "Must deposit something");
         require(lockDurationSeconds >= MIN_LOCK_PERIOD, "Min lock 30 days");
         require(lockDurationSeconds <= MAX_LOCK_PERIOD, "Max lock 365 days");
 
         uint256 lockUntil = block.timestamp + lockDurationSeconds;
-        console.log(
-            "Lock period ends at timestamp: %s (current: %s)",
-            lockUntil,
-            block.timestamp
-        );
+
+        // Transfer THY from Lender to Vault
+        thyseasToken.transferFrom(msg.sender, address(this), amount);
 
         depositsByLender[msg.sender].push(
             Deposit({
-                amount: msg.value,
+                amount: amount,
                 timestamp: block.timestamp,
                 lockUntil: lockUntil,
                 withdrawn: false
@@ -145,26 +142,29 @@ contract LendingVault is Ownable, IERC721Receiver, ReentrancyGuard {
         );
 
         uint256 oldBalance = lenderBalances[msg.sender];
-        lenderBalances[msg.sender] += msg.value;
-        totalLiquidityDeposited += msg.value;
+        lenderBalances[msg.sender] += amount;
+        totalLiquidityDeposited += amount;
 
         console.log("Lender old balance: %s", oldBalance);
         console.log("Lender new balance: %s", lenderBalances[msg.sender]);
         console.log("Total System Liquidity: %s", totalLiquidityDeposited);
 
-        emit LiquidityDeposited(msg.sender, msg.value);
+        emit LiquidityDeposited(msg.sender, amount);
     }
 
     /**
      * @dev Admin seeding function for initial bank capital.
      * Does not accrue interest, does not lock. Pure equity injection.
      */
-    function seedCapital() external payable onlyOwner {
+    function seedCapital(uint256 amount) external onlyOwner {
         console.log("--- seedCapital called ---");
-        require(msg.value > 0, "Must seed something");
-        totalLiquidityDeposited += msg.value;
-        // We don't track this as a lender deposit, so it's "free" equity for the protocol.
-        console.log("Capital Seeded by Admin: %s wei", msg.value);
+        require(amount > 0, "Must seed something");
+
+        // Transfer THY from Admin to Vault
+        thyseasToken.transferFrom(msg.sender, address(this), amount);
+
+        totalLiquidityDeposited += amount;
+        console.log("Capital Seeded by Admin: %s THY", amount);
         console.log("New Total Liquidity: %s", totalLiquidityDeposited);
     }
 
@@ -518,10 +518,10 @@ contract LendingVault is Ownable, IERC721Receiver, ReentrancyGuard {
         // Let's assume TotalLiquidityDeposited tracks "Total Available Reserve Assets".
         totalLiquidityDeposited = potentialNewLiquidity;
 
-        console.log("Sending %s wei to lender...", amountToSend);
+        console.log("Sending %s THY to lender...", amountToSend);
 
-        (bool success, ) = payable(msg.sender).call{value: amountToSend}("");
-        require(success, "Transfer failed");
+        // Transfer THY to lender
+        thyseasToken.transfer(msg.sender, amountToSend);
 
         console.log("Withdraw successful.");
     }

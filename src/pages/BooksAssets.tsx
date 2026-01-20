@@ -34,7 +34,7 @@ export interface PendingLoan {
 }
 
 // TODO: Replace with deployed address after user deploys
-const LENDING_VAULT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+const LENDING_VAULT_ADDRESS = "0x959922bE3CAee4b8Cd9a407cc3ac1C251C2007B1";
 
 export default function BooksAssets() {
     // --- State ---

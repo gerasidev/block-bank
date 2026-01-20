@@ -1,14 +1,11 @@
 import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"; // Fixed import path
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
+import { AlertCircle, Loader2 } from 'lucide-react';
+import { CONTRACT_ADDRESSES } from '../config/contracts';
 import LendingVaultABI from '../../smart_contracts/artifacts/contracts/LendingVault.sol/LendingVault.json';
 
 // Configuration - In a real app these would be in environment variables
-const CONTRACT_ADDRESS = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"; // From our simulation output
+const CONTRACT_ADDRESS = CONTRACT_ADDRESSES.LENDING_VAULT;
 
 interface Loan {
     id: number;
@@ -34,16 +31,21 @@ export default function AuditorDashboard() {
     const [approvalParams, setApprovalParams] = useState<Record<number, { leverage: string, interest: string }>>({});
 
     // Connect Wallet
-    const connectWallet = async () => {
-        if (window.ethereum) {
-            try {
-                const provider = new ethers.BrowserProvider(window.ethereum);
-                const signer = await provider.getSigner();
-                setAccount(await signer.getAddress());
-                checkAuditorStatus(signer);
-            } catch (err) {
-                console.error("Connection failed", err);
-            }
+    const connectWallet = async (forceSelect = false) => {
+        if (!window.ethereum) return;
+
+        // Respect explicit disconnect unless forced
+        if (!forceSelect && localStorage.getItem('wallet_disconnected') === 'true') {
+            return;
+        }
+
+        try {
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            const signer = await provider.getSigner();
+            setAccount(await signer.getAddress());
+            checkAuditorStatus(signer);
+        } catch (err) {
+            console.error("Connection failed", err);
         }
     };
 
@@ -219,169 +221,174 @@ export default function AuditorDashboard() {
     }, []);
 
     return (
-        <div className="container mx-auto p-6 space-y-8">
-            <div className="flex justify-between items-center">
-                <div>
-                    <h1 className="text-3xl font-bold text-foreground">
-                        Auditor Dashboard
+        <div className="container mx-auto p-8 space-y-12">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div className="space-y-2">
+                    <h1 className="text-5xl font-black uppercase tracking-tighter bg-yellow-400 px-4 py-2 border-4 border-black inline-block neo-shadow-lg">
+                        Audit Registry
                     </h1>
-                    <p className="text-muted-foreground mt-2">
-                        Review and approve pending loan requests. 2 signatures required.
+                    <p className="text-sm font-bold opacity-70 uppercase tracking-widest max-w-xl">
+                        Vault Governance: Multi-signature verification required for all liquidity releases.
                     </p>
                 </div>
-                <div className="text-right flex flex-col items-end gap-2">
-                    <Badge variant={isAuditor ? "default" : "destructive"}>
-                        {isAuditor ? "Auditor Access Granted" : "Restricted Access"}
-                    </Badge>
-                    <div className="flex items-center gap-2">
-                        <p className="text-xs text-muted-foreground font-mono">
-                            {account ? `${account.slice(0, 6)}...${account.slice(-4)}` : "Not Connected"}
+                <div className="flex flex-col items-end gap-3 bg-white p-4 border-2 border-black neo-shadow">
+                    <div className={`border-2 border-black uppercase font-black text-[10px] px-3 py-1 ${isAuditor ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}>
+                        {isAuditor ? "AUTH_LEVEL: AUDITOR" : "ACCESS: RESTRICTED"}
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <p className="text-[10px] font-black opacity-60">
+                            {account ? account : "WALLET_OFFLINE"}
                         </p>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-6 text-xs border-border hover:bg-secondary"
+                        <button
+                            className="bg-zinc-100 text-[10px] font-black uppercase px-2 py-1 border-2 border-black neo-shadow hover:neo-shadow-none transition-all"
                             onClick={handleSwitchAccount}
                         >
                             Switch
-                        </Button>
+                        </button>
                     </div>
                 </div>
             </div>
 
             {!isAuditor ? (
-                <Card className="border-destructive/20 bg-destructive/5">
-                    <CardContent className="pt-6 flex flex-col items-center justify-center min-h-[300px] text-center">
-                        <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
-                        <h2 className="text-xl font-semibold mb-2">Access Denied</h2>
-                        <p className="text-muted-foreground max-w-md">
-                            Your connected wallet is not registered as an auditor. Please switch to an authorized account.
-                        </p>
-                        {!account && <Button onClick={connectWallet} className="mt-6">Connect Wallet</Button>}
-                    </CardContent>
-                </Card>
+                <div className="bg-red-400 border-4 border-black p-12 neo-shadow-lg text-center space-y-4">
+                    <AlertCircle className="h-20 w-20 mx-auto border-4 border-black bg-white p-2" />
+                    <h2 className="text-4xl font-black uppercase italic">Access Denied!</h2>
+                    <p className="text-sm font-bold uppercase">
+                        Current credentials lack "AUDITOR" permissions. Switch to a privileged address.
+                    </p>
+                    {!account && (
+                        <button
+                            onClick={() => connectWallet(true)}
+                            className="bg-black text-white px-8 py-3 border-2 border-black neo-shadow-green font-black uppercase tracking-widest"
+                        >
+                            Authorize Wallet
+                        </button>
+                    )}
+                </div>
             ) : (
-                <Card className="border-border bg-card">
-                    <CardHeader>
-                        <CardTitle>Pending Loans</CardTitle>
-                        <CardDescription>Manage approvals for active loan requests</CardDescription>
-                    </CardHeader>
-                    <CardContent>
+                <div className="neo-card bg-white !p-0 overflow-hidden">
+                    <div className="bg-black text-white px-6 py-4 border-b-2 border-black flex justify-between items-center">
+                        <h2 className="text-xl font-black uppercase tracking-widest">Active Requests</h2>
+                        <span className="text-[10px] opacity-60 font-mono">COUNT: {loans.length}</span>
+                    </div>
+                    <div className="p-0 overflow-x-auto">
                         {loading && loans.length === 0 ? (
-                            <div className="flex justify-center p-8">
-                                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                            <div className="flex justify-center items-center py-20 bg-zinc-50">
+                                <Loader2 className="h-12 w-12 animate-spin text-black" />
                             </div>
                         ) : (
-                            <Table>
-                                <TableHeader>
-                                    <TableRow className="hover:bg-secondary border-border">
-                                        <TableHead className="w-[80px]">ID</TableHead>
-                                        <TableHead>Description</TableHead>
-                                        <TableHead>Requested</TableHead>
-                                        <TableHead>Audit Terms</TableHead>
-                                        <TableHead>Approvals</TableHead>
-                                        <TableHead className="text-right w-[300px]">Actions</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
+                            <table className="w-full text-left border-collapse">
+                                <thead className="bg-zinc-100 border-b-2 border-black">
+                                    <tr>
+                                        <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest">ID</th>
+                                        <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest">Client & Asset</th>
+                                        <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest">Capital</th>
+                                        <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest">Audit Config</th>
+                                        <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest">Consensus</th>
+                                        <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-right">Operations</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
                                     {loans.map((loan) => (
-                                        <TableRow key={loan.id} className="hover:bg-white/5 border-white/10">
-                                            <TableCell className="font-mono">#{loan.id}</TableCell>
-                                            <TableCell className="max-w-[200px]">
-                                                <div className="space-y-1">
-                                                    <p className="text-sm font-medium leading-none truncate" title={loan.description}>{loan.description || "No description"}</p>
-                                                    <p className="text-xs text-muted-foreground font-mono truncate">{loan.borrower}</p>
+                                        <tr key={loan.id} className="border-b border-zinc-200 hover:bg-zinc-50 transition-colors">
+                                            <td className="px-6 py-4 font-black text-lg">#{loan.id}</td>
+                                            <td className="px-6 py-4">
+                                                <div className="space-y-0.5">
+                                                    <p className="font-black uppercase text-sm truncate max-w-[200px]" title={loan.description}>{loan.description || "NO_DATA"}</p>
+                                                    <p className="text-[9px] font-mono opacity-50 truncate max-w-[150px]">{loan.borrower}</p>
                                                 </div>
-                                            </TableCell>
-                                            <TableCell className="font-medium text-foreground">
-                                                {Number(loan.amount).toLocaleString()} <span className="text-[10px] text-muted-foreground">ETH</span>
-                                            </TableCell>
-                                            <TableCell>
-                                                {/* Logic for displaying inputs vs set values */}
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="inline-block bg-orange-400 px-2 py-0.5 border-2 border-black font-black text-xs neo-shadow-sm">
+                                                    {Number(loan.amount).toLocaleString()} ETH
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4">
                                                 {(loan.approvals === 0 && loan.canApprove) ? (
-                                                    <div className="flex gap-2">
-                                                        <div className="space-y-1">
-                                                            <p className="text-[10px] uppercase text-muted-foreground">Leverage</p>
+                                                    <div className="flex gap-4">
+                                                        <div className="flex flex-col gap-1">
+                                                            <span className="text-[8px] font-black uppercase opacity-60 italic">LEV_RATIO</span>
                                                             <input
                                                                 type="number"
-                                                                className="w-16 h-7 text-xs bg-secondary border border-border rounded px-2"
+                                                                className="w-16 h-8 text-xs bg-white border-2 border-black focus:bg-yellow-50 px-2 font-black"
                                                                 value={approvalParams[loan.id]?.leverage || "5"}
                                                                 onChange={(e) => handleParamChange(loan.id, 'leverage', e.target.value)}
                                                             />
                                                         </div>
-                                                        <div className="space-y-1">
-                                                            <p className="text-[10px] uppercase text-muted-foreground">Rate (bps)</p>
+                                                        <div className="flex flex-col gap-1">
+                                                            <span className="text-[8px] font-black uppercase opacity-60 italic">RATE (BPS)</span>
                                                             <input
                                                                 type="number"
-                                                                className="w-16 h-7 text-xs bg-secondary border border-border rounded px-2"
+                                                                className="w-20 h-8 text-xs bg-white border-2 border-black focus:bg-yellow-50 px-2 font-black"
                                                                 value={approvalParams[loan.id]?.interest || "500"}
                                                                 onChange={(e) => handleParamChange(loan.id, 'interest', e.target.value)}
                                                             />
                                                         </div>
                                                     </div>
                                                 ) : (
-                                                    <div className="space-y-1">
-                                                        <Badge variant="outline" className="text-[10px] h-5 mb-1">{loan.leverageRatio > 0 ? `${loan.leverageRatio}x` : "Pending"}</Badge>
-                                                        <p className="text-xs text-muted-foreground">{loan.interestRate > 0 ? `${loan.interestRate} bps` : "Pending Rate"}</p>
+                                                    <div className="flex flex-col gap-1">
+                                                        <span className="text-[10px] font-black p-0.5 border border-black bg-zinc-100 text-center uppercase tracking-tighter">
+                                                            {loan.leverageRatio > 0 ? `${loan.leverageRatio}X LEV` : "PENDING"}
+                                                        </span>
+                                                        <span className="text-[10px] font-black p-0.5 border border-black bg-zinc-100 text-center uppercase tracking-tighter">
+                                                            {loan.interestRate > 0 ? `${loan.interestRate} BPS` : "PENDING"}
+                                                        </span>
                                                     </div>
                                                 )}
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center gap-2">
-                                                    <span className={`font-bold ${loan.approvals >= 2 ? "text-primary" : "text-muted-foreground"}`}>
-                                                        {loan.approvals}/2
-                                                    </span>
-                                                    <div className="h-2 w-16 bg-secondary rounded-full overflow-hidden">
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center gap-3">
+                                                    <span className="text-sm font-black italic">{loan.approvals}/2</span>
+                                                    <div className="h-4 w-20 border-2 border-black bg-white overflow-hidden p-0.5">
                                                         <div
-                                                            className="h-full bg-primary transition-all duration-500"
+                                                            className="h-full bg-green-500 border border-black transition-all duration-700"
                                                             style={{ width: `${(loan.approvals / 2) * 100}%` }}
                                                         />
                                                     </div>
                                                 </div>
-                                            </TableCell>
-                                            <TableCell className="text-right">
-                                                <div className="flex justify-end gap-2">
+                                            </td>
+                                            <td className="px-6 py-4 text-right">
+                                                <div className="flex justify-end gap-3">
                                                     {loan.isReleased ? (
-                                                        <span className="text-xs text-muted-foreground flex items-center gap-1">
-                                                            <CheckCircle className="h-3 w-3" /> Released
-                                                        </span>
+                                                        <div className="bg-green-100 border-2 border-black px-3 py-1 text-[10px] font-black uppercase italic animate-pulse">
+                                                            COMPLETED_RELEASE
+                                                        </div>
                                                     ) : (
                                                         <>
                                                             {loan.canApprove && (
-                                                                <Button
-                                                                    size="sm"
+                                                                <button
                                                                     onClick={() => handleApprove(loan.id)}
                                                                     disabled={!!processingId}
-                                                                    className="bg-primary hover:bg-primary/90 h-8 text-xs font-bold"
+                                                                    className="bg-[#10b981] text-white px-4 py-1.5 border-2 border-black neo-shadow hover:neo-shadow-none active:translate-x-[1px] font-black text-[10px] uppercase tracking-widest disabled:opacity-50"
                                                                 >
-                                                                    {processingId === loan.id ? <Loader2 className="h-3 w-3 animate-spin" /> : (loan.approvals === 0 ? "Set Terms & Approve" : "Consensus Approve")}
-                                                                </Button>
+                                                                    {processingId === loan.id ? "SYNCING..." : "APPROVE_ASSET"}
+                                                                </button>
                                                             )}
                                                             {loan.approvals >= 2 && (
-                                                                <Button
-                                                                    size="sm"
-                                                                    variant="outline"
-                                                                    className="border-primary text-primary hover:bg-primary hover:text-primary-foreground h-8 text-xs"
+                                                                <button
+                                                                    className="bg-zinc-950 text-white px-4 py-1.5 border-2 border-black neo-shadow-green hover:neo-shadow-none active:translate-x-[1px] font-black text-[10px] uppercase tracking-widest"
                                                                     onClick={() => handleRelease(loan.id)}
                                                                     disabled={!!processingId}
                                                                 >
-                                                                    {processingId === loan.id ? <Loader2 className="h-3 w-3 animate-spin" /> : "Release Funds"}
-                                                                </Button>
+                                                                    EXECUTE_RELEASE
+                                                                </button>
                                                             )}
                                                             {!loan.canApprove && loan.approvals < 2 && (
-                                                                <span className="text-xs text-muted-foreground italic">Voted</span>
+                                                                <div className="border-2 border-black px-3 py-1 bg-yellow-400 text-[10px] font-black uppercase skew-x-[-10deg]">
+                                                                    VOTE_RECORDED
+                                                                </div>
                                                             )}
                                                         </>
                                                     )}
                                                 </div>
-                                            </TableCell>
-                                        </TableRow>
+                                            </td>
+                                        </tr>
                                     ))}
-                                </TableBody>
-                            </Table>
+                                </tbody>
+                            </table>
                         )}
-                    </CardContent>
-                </Card>
+                    </div>
+                </div>
             )}
         </div>
     );

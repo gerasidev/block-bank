@@ -1,9 +1,5 @@
 import { useState } from 'react';
 import { initialTransactions, type Transaction } from '../data/mockTransactions';
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from './ui/card';
-import { Button } from './ui/button';
-import { Badge } from './ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { Activity, Network, Shield, Landmark } from 'lucide-react';
 
 interface Loan {
@@ -70,163 +66,164 @@ const VaultVisualizer = () => {
     };
 
     return (
-        <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-                <div className="flex space-x-2 bg-muted p-1 rounded-lg">
-                    <Button
-                        variant={view === 'system' ? 'default' : 'ghost'}
-                        size="sm"
+        <div className="space-y-12">
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-6">
+                <div className="flex border-4 border-black p-1 bg-white neo-shadow">
+                    <button
+                        className={`px-6 py-2 font-black text-xs uppercase tracking-widest transition-all ${view === 'system' ? 'bg-black text-white' : 'bg-transparent text-black hover:bg-zinc-100'}`}
                         onClick={() => setView('system')}
                     >
-                        <Activity className="mr-2 h-4 w-4" /> System Overview
-                    </Button>
-                    <Button
-                        variant={view === 'network' ? 'default' : 'ghost'}
-                        size="sm"
+                        SYSTEM_OVERVIEW
+                    </button>
+                    <button
+                        className={`px-6 py-2 font-black text-xs uppercase tracking-widest transition-all ${view === 'network' ? 'bg-black text-white' : 'bg-transparent text-black hover:bg-zinc-100'}`}
                         onClick={() => setView('network')}
                     >
-                        <Network className="mr-2 h-4 w-4" /> Network Graph
-                    </Button>
+                        NETWORK_GRAPH
+                    </button>
                 </div>
-                <Button
+                <button
                     onClick={runDemo}
                     disabled={isRunning}
-                    variant={isRunning ? "secondary" : "default"}
+                    className={`px-8 py-3 border-4 border-black font-black uppercase tracking-widest text-sm transition-all neo-shadow hover:neo-shadow-none active:translate-x-[2px] active:translate-y-[2px] ${isRunning ? 'bg-zinc-200 cursor-not-allowed' : 'bg-yellow-400'}`}
                 >
-                    {isRunning ? 'Processing...' : 'Run Simulation'}
-                </Button>
+                    {isRunning ? 'EXECUTING_PROTOCOL...' : 'RUN_SIMULATION'}
+                </button>
             </div>
 
             {currentStep && (
                 <div className="flex justify-center">
-                    <Badge variant="secondary" className="animate-pulse">{currentStep}</Badge>
+                    <div className="bg-black text-[#10b981] border-2 border-black px-6 py-2 font-black text-[10px] uppercase tracking-[0.3em] animate-pulse">
+                        {currentStep}
+                    </div>
                 </div>
             )}
 
             {view === 'system' ? (
-                <div className="grid gap-6 md:grid-cols-12">
-                    <Card className="md:col-span-8">
-                        <CardHeader>
-                            <CardTitle>On-Chain Transaction Log</CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-0">
-                            <div className="h-[400px] overflow-auto">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead>Type</TableHead>
-                                            <TableHead>Path</TableHead>
-                                            <TableHead className="text-right">Amount</TableHead>
-                                            <TableHead className="text-right">Time</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {transactions.map(tx => (
-                                            <TableRow key={tx.id}>
-                                                <TableCell>
-                                                    <Badge variant="outline">{tx.type}</Badge>
-                                                </TableCell>
-                                                <TableCell className="font-mono text-xs text-muted-foreground">{tx.from} ➔ {tx.to}</TableCell>
-                                                <TableCell className="text-right font-mono">{tx.amount}</TableCell>
-                                                <TableCell className="text-right text-xs text-muted-foreground">{tx.timestamp}</TableCell>
-                                            </TableRow>
-                                        ))}
-                                        {transactions.length === 0 && (
-                                            <TableRow>
-                                                <TableCell colSpan={4} className="text-center h-24 text-muted-foreground">Waiting for transactions...</TableCell>
-                                            </TableRow>
-                                        )}
-                                    </TableBody>
-                                </Table>
+                <div className="grid gap-10 md:grid-cols-12">
+                    <div className="md:col-span-8 neo-card bg-white !p-0 border-4 overflow-hidden">
+                        <div className="bg-black text-white px-8 py-4 flex justify-between items-center border-b-4 border-black">
+                            <h2 className="text-xl font-black uppercase tracking-widest">Transaction Log</h2>
+                            <Activity className="h-5 w-5 text-[#10b981]" />
+                        </div>
+                        <div className="h-[450px] overflow-auto">
+                            <table className="w-full text-left border-collapse">
+                                <thead className="bg-zinc-100 border-b-4 border-black sticky top-0">
+                                    <tr>
+                                        <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest">EVENT_TYPE</th>
+                                        <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest">ENTITY_PATH</th>
+                                        <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-right">VOLUME</th>
+                                        <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-right">TIME</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {transactions.map(tx => (
+                                        <tr key={tx.id} className="border-b-2 border-zinc-100 hover:bg-zinc-50">
+                                            <td className="px-8 py-4">
+                                                <span className={`inline-block px-2 py-1 border-2 border-black text-[9px] font-black uppercase skew-x-[-10deg] ${tx.type === 'DEPOSIT' ? 'bg-blue-400' : tx.type === 'RELEASE' ? 'bg-green-400' : 'bg-yellow-400'}`}>
+                                                    {tx.type}
+                                                </span>
+                                            </td>
+                                            <td className="px-8 py-4 font-mono text-[10px] opacity-70">{tx.from} ➔ {tx.to}</td>
+                                            <td className="px-8 py-4 text-right font-black text-sm">{tx.amount}</td>
+                                            <td className="px-8 py-4 text-right text-[10px] font-black opacity-40 italic">{tx.timestamp}</td>
+                                        </tr>
+                                    ))}
+                                    {transactions.length === 0 && (
+                                        <tr>
+                                            <td colSpan={4} className="text-center py-20 font-black opacity-30 uppercase italic">AWAITING_NETWORK_ACTIVITY</td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div className="md:col-span-4 space-y-8">
+                        <div className={`neo-card border-4 p-8 transition-all ${reserve > 0 ? "bg-blue-400" : "bg-white"}`}>
+                            <div className="flex flex-row items-center justify-between mb-4">
+                                <h3 className="text-xs font-black uppercase tracking-widest opacity-60">Vault Reserve</h3>
+                                <Shield className="h-6 w-6" />
                             </div>
-                        </CardContent>
-                    </Card>
-
-                    <div className="md:col-span-4 space-y-6">
-                        {/* Stats Cards */}
-                        <Card className={reserve > 0 ? "border-primary/50 bg-secondary" : ""}>
-                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">Vault Reserve</CardTitle>
-                                <Shield className="h-4 w-4 text-muted-foreground" />
-                            </CardHeader>
-                            <CardContent>
-                                <div className="text-2xl font-bold">{reserve.toFixed(1)} ETH</div>
-                                <p className="text-xs text-muted-foreground">Hard Assets Secured</p>
-                            </CardContent>
-                        </Card>
-
-                        <div className="flex justify-center">
-                            <Badge variant="secondary" className="text-lg px-4 py-1">x{multiplier} Leverage</Badge>
+                            <div className="text-5xl font-black tracking-tighter">{reserve.toFixed(1)} <span className="text-xl">ETH</span></div>
+                            <p className="text-[10px] font-black uppercase tracking-widest opacity-50 mt-2">Hard Assets Secured</p>
                         </div>
 
-                        <Card className={usedCredit > 0 ? "border-primary/50 bg-secondary" : ""}>
-                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">Credit Issued</CardTitle>
-                                <Landmark className="h-4 w-4 text-muted-foreground" />
-                            </CardHeader>
-                            <CardContent>
-                                <div className="text-2xl font-bold">{usedCredit.toFixed(1)} $THY</div>
-                                <p className="text-xs text-muted-foreground">Circulating Supply</p>
-                            </CardContent>
-                        </Card>
+                        <div className="flex justify-center">
+                            <div className="bg-yellow-400 border-4 border-black px-6 py-2 font-black text-lg uppercase tracking-widest neo-shadow rotate-3 hover:rotate-0 transition-transform">
+                                X{multiplier} LEVERAGE
+                            </div>
+                        </div>
+
+                        <div className={`neo-card border-4 p-8 transition-all ${usedCredit > 0 ? "bg-[#10b981] text-white" : "bg-white"}`}>
+                            <div className="flex flex-row items-center justify-between mb-4">
+                                <h3 className="text-xs font-black uppercase tracking-widest opacity-60">Credit Issued</h3>
+                                <Landmark className="h-6 w-6" />
+                            </div>
+                            <div className="text-5xl font-black tracking-tighter">{usedCredit.toFixed(1)} <span className="text-xl">$THY</span></div>
+                            <p className="text-[10px] font-black uppercase tracking-widest opacity-50 mt-2">Circulating Supply</p>
+                        </div>
                     </div>
                 </div>
             ) : (
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Fractional Network Graph</CardTitle>
-                        <CardDescription>Visualizing the 1:5 relationship between Vault and Nodes</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="w-full flex justify-center py-8">
-                            <svg width="100%" height="400" viewBox="0 0 800 400" className="max-w-[800px]">
-                                {/* Connections */}
-                                {loans.map((loan, i) => {
-                                    const angle = (i / 10) * Math.PI * 2;
-                                    const x = 400 + 150 * Math.cos(angle);
-                                    const y = 200 + 150 * Math.sin(angle);
-                                    return (
-                                        <line
-                                            key={`line-${i}`}
-                                            x1="400" y1="200"
-                                            x2={x} y2={y}
-                                            stroke={loan.isNew ? "currentColor" : "var(--border)"}
-                                            strokeWidth="2"
-                                            className="transition-all duration-300 text-primary"
-                                        />
-                                    );
-                                })}
-                                {/* The Vault Center */}
-                                <circle cx="400" cy="200" r="40" className="fill-foreground stroke-background stroke-[3px]" />
-                                <text x="400" y="205" textAnchor="middle" className="fill-background text-xs font-bold pointer-events-none">VAULT</text>
-
-                                {/* The Borrowers */}
-                                {loans.map((loan, i) => {
-                                    const angle = (i / 10) * Math.PI * 2;
-                                    const x = 400 + 150 * Math.cos(angle);
-                                    const y = 200 + 150 * Math.sin(angle);
-                                    return (
-                                        <g key={`node-${i}`}>
-                                            <circle cx={x} cy={y} r="15" className="fill-card stroke-primary stroke-[2px]" />
-                                            <text x={x} y={y + 30} textAnchor="middle" className="fill-muted-foreground text-[8px] font-mono">{loan.borrower}</text>
-                                        </g>
-                                    );
-                                })}
-
-                                {/* Starting Nodes placeholders */}
-                                {[...Array(10 - loans.length)].map((_, i) => {
-                                    const idx = i + loans.length;
-                                    const angle = (idx / 10) * Math.PI * 2;
-                                    const x = 400 + 150 * Math.cos(angle);
-                                    const y = 200 + 150 * Math.sin(angle);
-                                    return (
-                                        <circle key={`empty-${idx}`} cx={x} cy={y} r="10" className="fill-background stroke-border stroke-[1px]" strokeDasharray="4" />
-                                    );
-                                })}
-                            </svg>
+                <div className="neo-card bg-white border-4 !p-0 overflow-hidden">
+                    <div className="bg-black text-white px-8 py-4 flex justify-between items-center border-b-4 border-black">
+                        <div>
+                            <h2 className="text-xl font-black uppercase tracking-widest">Fractional Network Graph</h2>
+                            <p className="text-[10px] font-black opacity-50 uppercase tracking-[0.2em]">Visualizing the 1:{multiplier} Reserve Ratio</p>
                         </div>
-                    </CardContent>
-                </Card>
+                        <Network className="h-8 w-8 text-blue-400" />
+                    </div>
+                    <div className="w-full flex justify-center py-12 bg-zinc-50 overflow-hidden">
+                        <svg width="100%" height="500" viewBox="0 0 800 500" className="max-w-[800px]">
+                            {/* Connections */}
+                            {loans.map((loan, i) => {
+                                const angle = (i / 10) * Math.PI * 2;
+                                const x = 400 + 180 * Math.cos(angle);
+                                const y = 250 + 180 * Math.sin(angle);
+                                return (
+                                    <line
+                                        key={`line-${i}`}
+                                        x1="400" y1="250"
+                                        x2={x} y2={y}
+                                        stroke="black"
+                                        strokeWidth={loan.isNew ? "6" : "3"}
+                                        className="transition-all duration-300 opacity-20"
+                                    />
+                                );
+                            })}
+                            {/* The Vault Center */}
+                            <g className="cursor-pointer group">
+                                <circle cx="400" cy="250" r="50" className="fill-black neo-shadow-green stroke-white stroke-[4px]" />
+                                <text x="400" y="255" textAnchor="middle" className="fill-white text-sm font-black tracking-widest uppercase">VAULT</text>
+                            </g>
+
+                            {/* The Borrowers */}
+                            {loans.map((loan, i) => {
+                                const angle = (i / 10) * Math.PI * 2;
+                                const x = 400 + 180 * Math.cos(angle);
+                                const y = 250 + 180 * Math.sin(angle);
+                                return (
+                                    <g key={`node-${i}`} className="transition-all duration-500 animate-in fade-in zoom-in">
+                                        <circle cx={x} cy={y} r="20" className="fill-yellow-400 border-2 border-black stroke-black stroke-[3px] neo-shadow-none hover:r-25 transition-all" />
+                                        <text x={x} y={y + 40} textAnchor="middle" className="fill-black text-[9px] font-black uppercase tracking-tighter">{loan.borrower}</text>
+                                    </g>
+                                );
+                            })}
+
+                            {/* Starting Nodes placeholders */}
+                            {[...Array(10 - loans.length)].map((_, i) => {
+                                const idx = i + loans.length;
+                                const angle = (idx / 10) * Math.PI * 2;
+                                const x = 400 + 180 * Math.cos(angle);
+                                const y = 250 + 180 * Math.sin(angle);
+                                return (
+                                    <circle key={`empty-${idx}`} cx={x} cy={y} r="12" className="fill-transparent stroke-black stroke-[2px] opacity-10" strokeDasharray="6" />
+                                );
+                            })}
+                        </svg>
+                    </div>
+                </div>
             )}
         </div>
     );

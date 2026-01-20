@@ -1,13 +1,9 @@
 import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
-import { Button } from './ui/button';
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from './ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
-import { Badge } from './ui/badge';
-import { Input } from './ui/input';
 import LendingVaultABI from '../../smart_contracts/artifacts/contracts/LendingVault.sol/LendingVault.json';
+import { CONTRACT_ADDRESSES } from '../config/contracts';
 
-const LENDING_VAULT_ADDRESS = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9";
+const LENDING_VAULT_ADDRESS = CONTRACT_ADDRESSES.LENDING_VAULT;
 const LOCK_PERIOD_DAYS = 30;
 
 interface Deposit {
@@ -22,12 +18,33 @@ interface Deposit {
 
 export default function LenderDashboard() {
     const [deposits, setDeposits] = useState<Deposit[]>([]);
-    const [depositAmount, setDepositAmount] = useState("");
+
     const [statusMsg, setStatusMsg] = useState("");
     const [account, setAccount] = useState<string>("");
 
+    const checkWallet = async (forceSelect = false) => {
+        if (!window.ethereum) return;
+
+        // Respect explicit disconnect unless forced
+        if (!forceSelect && localStorage.getItem('wallet_disconnected') === 'true') {
+            return;
+        }
+
+        try {
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            const accounts = await provider.listAccounts();
+            if (accounts.length > 0) {
+                setAccount(accounts[0].address);
+            }
+        } catch (err) {
+            console.error("Connection check failed", err);
+        }
+    };
+
     useEffect(() => {
-        checkWallet();
+        if (localStorage.getItem('wallet_disconnected') !== 'true') {
+            checkWallet();
+        }
         if (window.ethereum) {
             window.ethereum.on('accountsChanged', handleAccountsChanged);
         }
@@ -43,16 +60,6 @@ export default function LenderDashboard() {
             fetchDeposits();
         }
     }, [account]);
-
-    const checkWallet = async () => {
-        if (window.ethereum) {
-            const provider = new ethers.BrowserProvider(window.ethereum);
-            const accounts = await provider.listAccounts();
-            if (accounts.length > 0) {
-                setAccount(accounts[0].address);
-            }
-        }
-    };
 
     const handleAccountsChanged = async (accounts: any[]) => {
         if (accounts.length > 0) {
@@ -70,8 +77,11 @@ export default function LenderDashboard() {
             const provider = new ethers.BrowserProvider(window.ethereum);
             const contract = new ethers.Contract(LENDING_VAULT_ADDRESS, LendingVaultABI.abi, provider);
 
+            // Get blockchain time instead of browser time for accurate simulation
+            const block = await provider.getBlock('latest');
+            const now = block ? Number(block.timestamp) : Math.floor(Date.now() / 1000);
+
             const depositsCount = await contract.getDepositsCount(account);
-            const now = Math.floor(Date.now() / 1000);
 
             const depositsData: Deposit[] = [];
             for (let i = 0; i < Number(depositsCount); i++) {
@@ -98,30 +108,7 @@ export default function LenderDashboard() {
         }
     };
 
-    const handleDeposit = async () => {
-        if (!depositAmount || parseFloat(depositAmount) <= 0) {
-            setStatusMsg("Please enter a valid amount");
-            return;
-        }
 
-        try {
-            setStatusMsg("Depositing...");
-            const provider = new ethers.BrowserProvider(window.ethereum);
-            const signer = await provider.getSigner();
-            const contract = new ethers.Contract(LENDING_VAULT_ADDRESS, LendingVaultABI.abi, signer);
-
-            const tx = await contract.depositLiquidity({
-                value: ethers.parseEther(depositAmount)
-            });
-            await tx.wait();
-
-            setStatusMsg(`Successfully deposited ${depositAmount} ETH! Locked for ${LOCK_PERIOD_DAYS} days.`);
-            setDepositAmount("");
-            fetchDeposits();
-        } catch (err: any) {
-            setStatusMsg("Error: " + (err.reason || err.message));
-        }
-    };
 
     const handleWithdraw = async (depositIndex: number) => {
         try {
@@ -145,107 +132,113 @@ export default function LenderDashboard() {
     };
 
     return (
-        <div className="container mx-auto py-10 space-y-8">
-            <div className="text-center space-y-2">
-                <h2 className="text-3xl font-bold tracking-tight">Lender Dashboard</h2>
-                <p className="text-muted-foreground">
-                    Deposit liquidity and earn interest. All deposits are locked for {LOCK_PERIOD_DAYS} days.
-                </p>
-                {statusMsg && <Badge variant={statusMsg.includes("Error") ? "destructive" : "default"}>{statusMsg}</Badge>}
+        <div className="container mx-auto p-8 space-y-12">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b-4 border-black pb-8">
+                <div className="space-y-4">
+                    <div className="inline-block bg-zinc-950 text-white px-3 py-1 text-[10px] font-black uppercase tracking-widest border-2 border-black neo-shadow-blue">
+                        POSITION: LIQUIDITY_PROVIDER
+                    </div>
+                    <h1 className="text-6xl font-black uppercase tracking-tighter leading-none">
+                        Yield <br /> Engine
+                    </h1>
+                    <p className="text-sm font-bold opacity-70 uppercase tracking-widest max-w-xl">
+                        Stake capital. Underwrite hardware. Earn protocol incentives. Locked for {LOCK_PERIOD_DAYS} days.
+                    </p>
+                </div>
+                {account && (
+                    <div className="bg-white p-6 border-4 border-black neo-shadow-lg text-right">
+                        <p className="text-[10px] font-black uppercase mb-2 opacity-50 tracking-tighter italic">ACTIVE_PROVIDER</p>
+                        <div className="font-black text-xs break-all bg-zinc-100 p-2 border-2 border-black">
+                            {account}
+                        </div>
+                    </div>
+                )}
             </div>
 
-            {/* Deposit Card */}
-            <Card className="border-border">
-                <CardHeader>
-                    <CardTitle className="text-foreground">Make a Deposit</CardTitle>
-                    <CardDescription>
-                        Earn 5% APR on your deposits. Funds will be locked for {LOCK_PERIOD_DAYS} days to ensure protocol stability.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="flex w-full items-center space-x-2">
-                        <Input
-                            type="number"
-                            placeholder="Amount in ETH"
-                            value={depositAmount}
-                            onChange={(e) => setDepositAmount(e.target.value)}
-                            className="max-w-md"
-                            step="0.01"
-                            min="0"
-                        />
-                        <Button onClick={handleDeposit} variant="default">
-                            Deposit ETH
-                        </Button>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-2">
-                        ⚠️ Your deposit will be locked until the unlock date. Early withdrawal is not possible.
-                    </p>
-                </CardContent>
-            </Card>
+            {statusMsg && (
+                <div className={`p-4 border-4 border-black font-black uppercase text-center neo-shadow-lg ${statusMsg.includes("Error") ? "bg-red-400" : "bg-green-400"}`}>
+                    {statusMsg}
+                </div>
+            )}
 
-            {/* Deposits Table */}
-            <Card className="border-border">
-                <CardHeader>
-                    <CardTitle className="text-foreground">Your Deposits</CardTitle>
-                    <CardDescription>Track your deposits and withdraw when unlocked</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Deposit #</TableHead>
-                                <TableHead>Amount</TableHead>
-                                <TableHead>Deposit Date</TableHead>
-                                <TableHead>Unlock Date</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead className="text-right">Action</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
+            <div className="neo-card bg-white !p-0 border-4">
+                <div className="bg-black text-white px-8 py-6 flex justify-between items-center border-b-4 border-black">
+                    <div className="space-y-1">
+                        <h2 className="text-2xl font-black uppercase tracking-widest flex items-center gap-3">
+                            Stake Ledger
+                        </h2>
+                        <p className="text-[10px] font-bold opacity-50 uppercase">Individual Proof of Liquidity</p>
+                    </div>
+                    <button
+                        onClick={() => fetchDeposits()}
+                        className="bg-yellow-400 text-black px-4 py-2 border-2 border-black neo-shadow hover:neo-shadow-none transition-all text-[10px] font-black uppercase tracking-widest"
+                    >
+                        SYNC_STATE
+                    </button>
+                </div>
+
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                        <thead className="bg-zinc-100 border-b-4 border-black">
+                            <tr>
+                                <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest">DEPOSIT_ID</th>
+                                <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest">PRINCIPAL</th>
+                                <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest">TIMESTAMP</th>
+                                <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest">RELEASES</th>
+                                <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest">PROTOCOL_STATE</th>
+                                <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-right">OPERATIONS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
                             {deposits.length === 0 ? (
-                                <TableRow>
-                                    <TableCell colSpan={6} className="text-center h-24 text-muted-foreground">
-                                        No deposits found. Make your first deposit above!
-                                    </TableCell>
-                                </TableRow>
+                                <tr>
+                                    <td colSpan={6} className="px-8 py-20 text-center font-black opacity-30 uppercase italic text-xl">
+                                        NO_ACTIVE_LIQUIDITY_DETECTED
+                                    </td>
+                                </tr>
                             ) : deposits.map((deposit) => (
-                                <TableRow key={deposit.index}>
-                                    <TableCell className="font-medium">#{deposit.index + 1}</TableCell>
-                                    <TableCell className="font-mono">{deposit.amount} ETH</TableCell>
-                                    <TableCell>{formatDate(deposit.timestamp)}</TableCell>
-                                    <TableCell>{formatDate(deposit.lockUntil)}</TableCell>
-                                    <TableCell>
-                                        {deposit.withdrawn ? (
-                                            <Badge variant="secondary">Withdrawn</Badge>
-                                        ) : deposit.canWithdraw ? (
-                                            <Badge variant="default" className="bg-green-600">Ready to Withdraw</Badge>
-                                        ) : (
-                                            <Badge variant="outline">
-                                                Locked ({deposit.daysRemaining} days left)
-                                            </Badge>
-                                        )}
-                                    </TableCell>
-                                    <TableCell className="text-right">
+                                <tr key={deposit.index} className="border-b-2 border-zinc-100 hover:bg-zinc-50 transition-colors">
+                                    <td className="px-8 py-6 font-mono text-sm opacity-50 italic">#{deposit.index + 1}</td>
+                                    <td className="px-8 py-6 font-black text-lg tracking-tighter">
+                                        {deposit.amount} <span className="text-[10px] opacity-40">THY</span>
+                                    </td>
+                                    <td className="px-8 py-6 font-black text-xs uppercase opacity-70">
+                                        {formatDate(deposit.timestamp)}
+                                    </td>
+                                    <td className="px-8 py-6 font-black text-xs uppercase opacity-70">
+                                        {formatDate(deposit.lockUntil)}
+                                    </td>
+                                    <td className="px-8 py-6">
+                                        <div className={`
+                                            inline-block px-3 py-1 border-2 border-black text-[10px] font-black uppercase skew-x-[-10deg]
+                                            ${deposit.withdrawn ? 'bg-zinc-200 opacity-50' :
+                                                deposit.canWithdraw ? 'bg-green-400' : 'bg-yellow-100'}
+                                        `}>
+                                            {deposit.withdrawn ? "IDLE_RELEASED" :
+                                                deposit.canWithdraw ? "YIELD_READY" :
+                                                    `LOCKED (${deposit.daysRemaining}D)`}
+                                        </div>
+                                    </td>
+                                    <td className="px-8 py-6 text-right">
                                         {!deposit.withdrawn && deposit.canWithdraw ? (
-                                            <Button
-                                                size="sm"
+                                            <button
+                                                className="bg-[#10b981] text-white px-4 py-2 border-2 border-black neo-shadow hover:neo-shadow-none active:translate-x-[1px] font-black text-[10px] uppercase tracking-widest"
                                                 onClick={() => handleWithdraw(deposit.index)}
-                                                variant="default"
                                             >
-                                                Withdraw + Interest
-                                            </Button>
+                                                WITHDRAW_TOTAL
+                                            </button>
                                         ) : (
-                                            <Button size="sm" disabled variant="ghost">
-                                                {deposit.withdrawn ? "Withdrawn" : "Locked"}
-                                            </Button>
+                                            <button className="bg-zinc-100 text-black px-4 py-2 border-2 border-black opacity-30 font-black text-[10px] uppercase cursor-not-allowed" disabled>
+                                                {deposit.withdrawn ? "RELEASED" : "FROZEN"}
+                                            </button>
                                         )}
-                                    </TableCell>
-                                </TableRow>
+                                    </td>
+                                </tr>
                             ))}
-                        </TableBody>
-                    </Table>
-                </CardContent>
-            </Card>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     );
 }
