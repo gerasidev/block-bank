@@ -294,7 +294,7 @@ export default function AuditorDashboard() {
                                                 </div>
                                             </TableCell>
                                             <TableCell className="font-medium text-foreground">
-                                                {Number(loan.amount).toLocaleString()} <span className="text-[10px] text-muted-foreground">BTC</span>
+                                                {Number(loan.amount).toLocaleString()} <span className="text-[10px] text-muted-foreground">ETH</span>
                                             </TableCell>
                                             <TableCell>
                                                 {/* Logic for displaying inputs vs set values */}

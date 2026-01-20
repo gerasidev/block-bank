@@ -10,9 +10,12 @@
 
 *Note: In blockchain, a "Protocol" is simply the set of rules defined in the smart contract code. Yes, this is a smart contract, but we call it a protocol because it enforces the rules of interaction between lenders, borrowers, and the bank.*
 
-NeoBank is built on **TRUST**. We operate like a traditional bank: individuals deposit liquidity, which is then used to fund physical infrastructure through a fractional reserve system.
+NeoBank is built on **TRUST**. We operate like this: future payments from trusted individuals
+are taken as  assets for new  loans  to be  issued  and collateralized, which is then used to fund physical infrastructure through a fractional reserve system.
 
 We are building a future where capital flows to those building the physical infrastructure of tomorrow, from robotics to hardware.
+
+Starting of  we are going   causious  who we lend to and what we lend to  as we try  to figure  things  out.
 
 > **The Thesis**: "Robotics is going to be bigger than the internet and the combustion engine combined."
 

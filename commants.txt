@@ -1,3 +1,7 @@
+[AUTO-COMPILE ENABLED]
+When you run 'npm run dev', the system will now automatically compile your Solidity contracts (in smart_contracts/) before starting the frontend website.
+- If you edit a .sol file, STOP the server (Ctrl+C) and run 'npm run dev' again to apply the changes to the Application Binary Interface (ABI).
+
 npx hardhat node
 npx hardhat run scripts/deploy_local.js --network localhost
 

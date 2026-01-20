@@ -46,8 +46,11 @@ export default function Navbar() {
             setChainId(Number(network.chainId));
             fetchBankStats(provider);
 
-        } catch (err) {
+        } catch (err: any) {
             console.error("Error loading account data", err);
+            if (err.message && (err.message.includes("invalid block tag") || err.message.includes("Nonce too high"))) {
+                alert("MetaMask Sync Error: Please reset your account!\n\nGo to MetaMask -> Settings -> Advanced -> Clear activity tab data.\n\nThis is required because the local blockchain was restarted.");
+            }
         }
     };
 
@@ -143,7 +146,7 @@ export default function Navbar() {
                     <div className="hidden lg:flex items-center gap-4 px-4 border-l border-border/50 ml-4">
                         <div className="flex flex-col items-end">
                             <span className="text-[10px] uppercase text-muted-foreground font-bold tracking-wider">Vault Liquidity</span>
-                            <span className="text-sm font-bold font-mono text-primary">{parseFloat(bankLiquidity).toFixed(2)} BTC</span>
+                            <span className="text-sm font-bold font-mono text-primary">{parseFloat(bankLiquidity).toFixed(2)} ETH</span>
                         </div>
                         <div className="flex flex-col items-end">
                             <span className="text-[10px] uppercase text-muted-foreground font-bold tracking-wider">Max Leverage</span>

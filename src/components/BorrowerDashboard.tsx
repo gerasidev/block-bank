@@ -252,7 +252,7 @@ export default function BorrowerDashboard() {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[10px] uppercase text-muted-foreground font-bold tracking-wider">Requested Amount (BTC)</label>
+                                <label className="text-[10px] uppercase text-muted-foreground font-bold tracking-wider">Requested Amount (ETH)</label>
                                 <Input
                                     type="number"
                                     value={loanAmount}
@@ -316,7 +316,7 @@ export default function BorrowerDashboard() {
                                     ) : myLoans.map((loan) => (
                                         <TableRow key={loan.id} className="border-white/5 hover:bg-white/5 transition-colors group">
                                             <TableCell className="font-mono text-sm text-muted-foreground italic">#{loan.id}</TableCell>
-                                            <TableCell className="font-bold text-foreground tracking-widest">{loan.amount} <span className="text-[10px] text-muted-foreground ml-1">BTC</span></TableCell>
+                                            <TableCell className="font-bold text-foreground tracking-widest">{loan.amount} <span className="text-[10px] text-muted-foreground ml-1">ETH</span></TableCell>
                                             <TableCell>
                                                 <div className="flex items-center gap-2">
                                                     <span className={`text-xs font-bold ${loan.approvals >= 2 ? "text-foreground" : "text-muted-foreground"}`}>

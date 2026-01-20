@@ -21,6 +21,24 @@
             "request": "launch",
             "command": "npm run dev",
             "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Debug Active Hardhat Script",
+            "type": "node",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/smart_contracts",
+            "runtimeExecutable": "node",
+            "program": "${workspaceFolder}/smart_contracts/node_modules/hardhat/internal/cli/cli.js",
+            "args": [
+                "run",
+                "${file}",
+                "--network",
+                "localhost"
+            ],
+            "console": "integratedTerminal",
+            "skipFiles": [
+                "<node_internals>/**"
+            ]
         }
     ],
     "compounds": [

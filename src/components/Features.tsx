@@ -6,7 +6,7 @@ const features = [
     {
         icon: <Bitcoin className="w-10 h-10 text-primary" />,
         title: "NeoBank",
-        desc: "ERC-20 token pegged 1:1 to BTC value. Mint by locking BTC via tBTC or native layers. Stability via open arbitrage."
+        desc: "ERC-20 token pegged 1:1 to ETH value. Mint by locking ETH via native layers. Stability via open arbitrage."
     },
     {
         icon: <Zap className="w-10 h-10 text-primary" />,

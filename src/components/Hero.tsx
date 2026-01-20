@@ -38,7 +38,7 @@ export default function Hero() {
                 <div className="mt-16 flex flex-wrap justify-center gap-12 md:gap-24">
                     <div className="text-center">
                         <h4 className="text-4xl font-bold text-foreground">1:1</h4>
-                        <span className="text-sm text-muted-foreground uppercase tracking-wider">BTC Peg</span>
+                        <span className="text-sm text-muted-foreground uppercase tracking-wider">ETH Peg</span>
                     </div>
                     <div className="text-center">
                         <h4 className="text-4xl font-bold text-foreground">25x</h4>
