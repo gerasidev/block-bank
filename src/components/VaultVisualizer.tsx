@@ -85,7 +85,7 @@ const VaultVisualizer = () => {
                 <button
                     onClick={runDemo}
                     disabled={isRunning}
-                    className={`px-8 py-3 border-4 border-black font-black uppercase tracking-widest text-sm transition-all neo-shadow hover:neo-shadow-none active:translate-x-[2px] active:translate-y-[2px] ${isRunning ? 'bg-zinc-200 cursor-not-allowed' : 'bg-yellow-400'}`}
+                    className={`px-8 py-3 border-4 border-black font-black uppercase tracking-widest text-sm transition-all neo-shadow hover:neo-shadow-none active:translate-x-[2px] active:translate-y-[2px] ${isRunning ? 'bg-zinc-200 cursor-not-allowed' : 'bg-black text-white'}`}
                 >
                     {isRunning ? 'EXECUTING_PROTOCOL...' : 'RUN_SIMULATION'}
                 </button>
@@ -93,7 +93,7 @@ const VaultVisualizer = () => {
 
             {currentStep && (
                 <div className="flex justify-center">
-                    <div className="bg-black text-[#10b981] border-2 border-black px-6 py-2 font-black text-[10px] uppercase tracking-[0.3em] animate-pulse">
+                    <div className="bg-white text-black border-2 border-black px-6 py-2 font-black text-[10px] uppercase tracking-[0.3em] animate-pulse neo-shadow-sm">
                         {currentStep}
                     </div>
                 </div>
@@ -104,7 +104,7 @@ const VaultVisualizer = () => {
                     <div className="md:col-span-8 neo-card bg-white !p-0 border-4 overflow-hidden">
                         <div className="bg-black text-white px-8 py-4 flex justify-between items-center border-b-4 border-black">
                             <h2 className="text-xl font-black uppercase tracking-widest">Transaction Log</h2>
-                            <Activity className="h-5 w-5 text-[#10b981]" />
+                            <Activity className="h-5 w-5 text-white" />
                         </div>
                         <div className="h-[450px] overflow-auto">
                             <table className="w-full text-left border-collapse">
@@ -120,7 +120,7 @@ const VaultVisualizer = () => {
                                     {transactions.map(tx => (
                                         <tr key={tx.id} className="border-b-2 border-zinc-100 hover:bg-zinc-50">
                                             <td className="px-8 py-4">
-                                                <span className={`inline-block px-2 py-1 border-2 border-black text-[9px] font-black uppercase skew-x-[-10deg] ${tx.type === 'DEPOSIT' ? 'bg-blue-400' : tx.type === 'RELEASE' ? 'bg-green-400' : 'bg-yellow-400'}`}>
+                                                <span className={`inline-block px-2 py-1 border-2 border-black text-[9px] font-black uppercase skew-x-[-10deg] ${tx.type === 'DEPOSIT' ? 'bg-zinc-800 text-white' : tx.type === 'RELEASE' ? 'bg-zinc-200' : 'bg-zinc-400'}`}>
                                                     {tx.type}
                                                 </span>
                                             </td>
@@ -140,7 +140,7 @@ const VaultVisualizer = () => {
                     </div>
 
                     <div className="md:col-span-4 space-y-8">
-                        <div className={`neo-card border-4 p-8 transition-all ${reserve > 0 ? "bg-blue-400" : "bg-white"}`}>
+                        <div className={`neo-card border-4 p-8 transition-all ${reserve > 0 ? "bg-zinc-800 text-white shadow-none" : "bg-white text-black"}`}>
                             <div className="flex flex-row items-center justify-between mb-4">
                                 <h3 className="text-xs font-black uppercase tracking-widest opacity-60">Vault Reserve</h3>
                                 <Shield className="h-6 w-6" />
@@ -150,12 +150,12 @@ const VaultVisualizer = () => {
                         </div>
 
                         <div className="flex justify-center">
-                            <div className="bg-yellow-400 border-4 border-black px-6 py-2 font-black text-lg uppercase tracking-widest neo-shadow rotate-3 hover:rotate-0 transition-transform">
+                            <div className="bg-white border-4 border-black px-6 py-2 font-black text-lg uppercase tracking-widest neo-shadow rotate-3 hover:rotate-0 transition-transform">
                                 X{multiplier} LEVERAGE
                             </div>
                         </div>
 
-                        <div className={`neo-card border-4 p-8 transition-all ${usedCredit > 0 ? "bg-[#10b981] text-white" : "bg-white"}`}>
+                        <div className={`neo-card border-4 p-8 transition-all ${usedCredit > 0 ? "bg-black text-white shadow-none" : "bg-white text-black"}`}>
                             <div className="flex flex-row items-center justify-between mb-4">
                                 <h3 className="text-xs font-black uppercase tracking-widest opacity-60">Credit Issued</h3>
                                 <Landmark className="h-6 w-6" />
@@ -172,7 +172,7 @@ const VaultVisualizer = () => {
                             <h2 className="text-xl font-black uppercase tracking-widest">Fractional Network Graph</h2>
                             <p className="text-[10px] font-black opacity-50 uppercase tracking-[0.2em]">Visualizing the 1:{multiplier} Reserve Ratio</p>
                         </div>
-                        <Network className="h-8 w-8 text-blue-400" />
+                        <Network className="h-8 w-8 text-black" />
                     </div>
                     <div className="w-full flex justify-center py-12 bg-zinc-50 overflow-hidden">
                         <svg width="100%" height="500" viewBox="0 0 800 500" className="max-w-[800px]">
@@ -194,7 +194,7 @@ const VaultVisualizer = () => {
                             })}
                             {/* The Vault Center */}
                             <g className="cursor-pointer group">
-                                <circle cx="400" cy="250" r="50" className="fill-black neo-shadow-green stroke-white stroke-[4px]" />
+                                <circle cx="400" cy="250" r="50" className="fill-black neo-shadow stroke-white stroke-[4px]" />
                                 <text x="400" y="255" textAnchor="middle" className="fill-white text-sm font-black tracking-widest uppercase">VAULT</text>
                             </g>
 
@@ -205,7 +205,7 @@ const VaultVisualizer = () => {
                                 const y = 250 + 180 * Math.sin(angle);
                                 return (
                                     <g key={`node-${i}`} className="transition-all duration-500 animate-in fade-in zoom-in">
-                                        <circle cx={x} cy={y} r="20" className="fill-yellow-400 border-2 border-black stroke-black stroke-[3px] neo-shadow-none hover:r-25 transition-all" />
+                                        <circle cx={x} cy={y} r="20" className="fill-white border-2 border-black stroke-black stroke-[3px] neo-shadow hover:r-25 transition-all" />
                                         <text x={x} y={y + 40} textAnchor="middle" className="fill-black text-[9px] font-black uppercase tracking-tighter">{loan.borrower}</text>
                                     </g>
                                 );

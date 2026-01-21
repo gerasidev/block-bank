@@ -1,0 +1,46 @@
+[
+    {
+        "id": "1",
+        "name": "NEO LABS",
+        "location": "SAN FRANCISCO, USA",
+        "coordinates": [
+            -122.4194,
+            37.7749
+        ],
+        "building": "HUMANOID ROBOTICS FOR DEEP TECH",
+        "category": "ROBOTICS"
+    },
+    {
+        "id": "2",
+        "name": "THYSEAS CORE",
+        "location": "ZUG, SWITZERLAND",
+        "coordinates": [
+            8.5155,
+            47.1662
+        ],
+        "building": "FRACTIONAL BANKING PROTOCOL",
+        "category": "FINTECH"
+    },
+    {
+        "id": "3",
+        "name": "BIOWARP",
+        "location": "CAMBRIDGE, UK",
+        "coordinates": [
+            0.1218,
+            52.2053
+        ],
+        "building": "SYNTHETIC BIO PRINTING",
+        "category": "BIOTECH"
+    },
+    {
+        "id": "4",
+        "name": "FOUNDRY X",
+        "location": "TOKYO, JAPAN",
+        "coordinates": [
+            139.6917,
+            35.6895
+        ],
+        "building": "NEXT-GEN SILICON HARDWARE",
+        "category": "HARDWARE"
+    }
+]

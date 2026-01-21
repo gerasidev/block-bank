@@ -5,7 +5,7 @@ function Dashboard() {
         <div className="container mx-auto p-8 space-y-12">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b-4 border-black pb-8">
                 <div className="space-y-4">
-                    <div className="inline-block bg-white text-black px-3 py-1 text-[10px] font-black uppercase tracking-widest border-2 border-black neo-shadow-yellow">
+                    <div className="inline-block bg-white text-black px-3 py-1 text-[10px] font-black uppercase tracking-widest border-2 border-black neo-shadow">
                         SYSTEM_METRICS: LIVE_FEED
                     </div>
                     <h1 className="text-6xl font-black uppercase tracking-tighter leading-none">

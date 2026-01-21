@@ -144,16 +144,17 @@ export default function Navbar() {
                     <a href="#features" className="hover:text-primary transition-colors">Features</a>
                     <Link to="/dashboard" className="hover:text-primary transition-colors">Dashboard</Link>
                     <Link to="/books" className="hover:text-primary transition-colors">Books</Link>
+                    <Link to="/builders" className="hover:text-primary transition-colors">Builders</Link>
                     <Link to="/loans" className="hover:text-primary transition-colors">Registry</Link>
-                    <Link to="/lender" className="hover:text-primary transition-colors text-blue-600">Lender</Link>
-                    <Link to="/borrower" className="hover:text-primary transition-colors text-orange-600">Borrow</Link>
+                    <Link to="/lender" className="hover:text-primary transition-colors">Lender</Link>
+                    <Link to="/borrower" className="hover:text-primary transition-colors">Borrow</Link>
 
                     <Link to="/auditor" className="bg-zinc-950 text-white px-3 py-1 neo-shadow hover:bg-zinc-800 transition-all border-2 border-black">
                         Audit
                     </Link>
 
                     {/* BANK STATS DISPLAY */}
-                    <div className="hidden lg:flex items-center gap-3 px-3 py-1 border-2 border-black bg-yellow-400 neo-shadow">
+                    <div className="hidden lg:flex items-center gap-3 px-3 py-1 border-2 border-black bg-white neo-shadow">
                         <div className="flex flex-col items-end">
                             <span className="text-[7px] opacity-70">Reserve</span>
                             <span className="text-[10px] font-black">{parseFloat(bankLiquidity).toFixed(2)} ETH</span>
@@ -167,7 +168,7 @@ export default function Navbar() {
 
                     {/* TIME SIMULATION (Local Only) */}
                     {isLocal && (
-                        <div className="hidden lg:flex items-center gap-2 px-3 py-1 border-2 border-black bg-blue-400 neo-shadow">
+                        <div className="hidden lg:flex items-center gap-2 px-3 py-1 border-2 border-black bg-white neo-shadow">
                             <div className="flex flex-col items-end">
                                 <span className="text-[7px] opacity-70">Sim Date</span>
                                 <span className="text-[10px] font-black">
@@ -202,7 +203,7 @@ export default function Navbar() {
                         </div>
                     ) : (
                         <button
-                            className="bg-[#10b981] text-white px-4 py-2 border-2 border-black neo-btn font-black text-xs uppercase tracking-widest flex items-center gap-2"
+                            className="bg-black text-white px-4 py-2 border-2 border-black neo-btn font-black text-xs uppercase tracking-widest flex items-center gap-2"
                             onClick={connectWallet}
                         >
                             <Wallet className="h-4 w-4" /> Connect

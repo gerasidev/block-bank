@@ -1,6 +1,6 @@
 # NeoBank ($THYSEAS)
 
-> **The first crypto bank that creates max 5× leverage to fund machines that move atoms AND real world infrastructure.**
+> **The first crypto bank that creates max 10× leverage to fund machines that move atoms AND real world infrastructure.**
 
 ![THYSEAS Hero](src/assets/hero.png)
 
@@ -11,20 +11,20 @@
 *Note: In blockchain, a "Protocol" is simply the set of rules defined in the smart contract code. Yes, this is a smart contract, but we call it a protocol because it enforces the rules of interaction between lenders, borrowers, and the bank.*
 
 NeoBank is built on **TRUST**. We operate like this: future payments from trusted individuals
-are taken as  assets for new  loans  to be  issued  and collateralized, which is then used to fund physical infrastructure through a fractional reserve system.
+are taken as assets for new loans to be issued and collateralized, which is then used to fund physical infrastructure through a fractional reserve system.
 
 We are building a future where capital flows to those building the physical infrastructure of tomorrow, from robotics to hardware.
 
-Starting of  we are going   causious  who we lend to who we stake and what we lend to  as we try  to figure  things  out.
+From the start, we are being cautious about who we lend to and what we stake, as we figure things out together.
 
-Loans are issued in $THYSEAS. And a laverage  of max 8x is allowed for now.
-With the believe  that is going to remain stable.
+Loans are issued in $THYSEAS. And a leverage of max 10x is allowed for now.
+With the belief that it is going to remain stable.
 
 > **The Thesis**: "Robotics Biotech and AI area is going to be bigger than the internet and the combustion engine combined."
 
-### 🆚 NeoBank vs Traditional Banks
-- **Traditional Banks**: Mostly fund Real Estate. They reward the **lazy**—those who sit on land waiting for appreciation.
-- **NeoBank**: Funds Machines, Robotics, and Hardware. We reward the **builders**—those who create the future.
+### 🆚 Why Support THYSEAS?
+- **Legacy Finance**: Funds land appreciation. Rewards the **Lazy**.
+- **THYSEAS**: Funds the Machine Age. Rewards the **Builders**.
 
 ### 🔮 Future Promise & Hype
 We work on **hype** and **future promise**. 
@@ -35,11 +35,11 @@ We work on **hype** and **future promise**.
 
 
 ### 🔑 Core Principles
-1. **1 $THYSEAS = 1 BTC worth of value**: A fractional-reserve stablecoin backed by high-value physical assets.
-2. **Asset Backed**: Loans are secured by  **Future Payments** or/and stake in the company.
-3. **Built on Trust**: We operate on a foundation of trust with verified partners.
-4. **Max 8x Leverage**: We unlock up to 8x liquidity against verified solid assets and future upside.
-5. **Community Audited**: We are bulding  a community also spronsor/fund robotic,biotech communities
+1. **1 $THYSEAS ≈ 1 ETH** (Target Value): Capital gains from the token are recycled as reserve assets to maintain stability.
+2. **Asset-Backed Future**: Loans are secured by **Future Payments**, **Hardware**, or **Equity Stake**.
+3. **Targeted Lending**: We operate on a foundation of verified trust. Funds are lent cautiously to specific, trusted individuals — we do not lend uncontrollably "left and right."
+4. **10x Strategic Leverage**: We unlock high-efficiency liquidity (up to 10x) against future upside and solid assets to accelerate the Machine Age.
+5. **Community Supported**: Protocol interest is dedicated to sponsoring and funding open-source **Robotics** and **Biotech** communities.
 
 ## 🚀 Key Features
 
@@ -48,50 +48,60 @@ We work on **hype** and **future promise**.
     - **Hardware**: Robots, GPUs, Lab Equipment,Biotech.
     - **Cash Flow**: Future payments and contract-backed receivables.
                        from individuals that can be trusted.
-- **Fractional Lending**: Up to 5x leverage on verified assets and future revenue streams.
+- **Fractional Lending**: Up to 10x leverage on verified assets and future revenue streams.
 - **Future Upside Participation**: The protocol captures value from the growth and success of funded projects.
-- **RWA Tokenization**: Turn physical properties and machines into liquid assets (ERC-721).
+- **RWA Tokenization (experimental)**: Turn physical properties and machines into liquid assets (ERC-721) (on Good Faith as we figure things out).
 - **Community Audited**: Decentralized verification of loan applications and property appraisals.
 
 ## 🏛 The Banking Mechanism (Fractional Reserve)
 
-$THYSEAS utilizes a **8x Leverage Engine** in the `LendingVault`:
- **Militated Fractional Minting**: The bank can mint up to 10x the value of the assets it has in its vault.
-    - **Future  payments    and stake in the company are  taken as assets  for  future loans.
-    - **Traditional Mechanics**: Just like a traditional bank, we use leverage to create credit (loans) that exceeds the base reserves, banking on the future success of these deep-tech ventures.
- **Manual Release**: All liquidity releases require a 2-step manual audit and approval flow.
+$THYSEAS utilizes a **10x Leverage Engine** in the `LendingVault`:
+
+- **Intentional Fractional Minting**: The bank can mint up to 10× the value of its base reserves. This is backed by the conviction that capital gains from the token (recycled as reserve assets) and future cash flows will appreciate faster than the credit issued.
+- **Manual Release**: To prevent errors and maintain the "Good Faith" standard, all liquidity releases require a 2-step manual audit and approval flow.
 
 ## 🛠 Tech Stack
 
 - **Frontend**: React, Vite, TypeScript
 - **Styling**: Vanilla CSS (Deep-Tech Design System), Framer Motion
-- **Blockchain**: (Planned) Arbitrum + Bitcoin Anchoring (tBTC/Rootstock)
+- **Blockchain**: (Planned) Arbitrum + Institutional Scaling Phase
 
 ## 🏁 Getting Started
 
-### Prerequisites
-- Node.js (v18+)
-- npm or yarn
-
-### Installation
+### 1. Prerequisites & Installation
+- **Node.js**: v18+
+- **MetaMask**: Installed in browser.
 
 ```bash
-# Clone the repository
-git clone https://github.com/gerasidev/thyseas-mvp.git
+# Install root, server, and contract dependencies
+npm install && cd server && npm install && cd ../smart_contracts && npm install && cd ..
+```
 
-# Navigate to directory
-cd thyseas-mvp
+### 2. Local Blockchain Setup
+You will need three terminal windows to run the full stack:
 
-# Install dependencies
-npm install
+**Terminal 1: Start the Blockchain Node**
+```bash
+npm run blockchain
+```
 
-# Run development server
+**Terminal 2: Deploy & Seed Capital**
+This deploys the contracts and injects initial reserve liquidity (ETH/THY/BTC) into the vault.
+```bash
+npm run seed
+```
+
+**Terminal 3: Launch Frontend & Backend**
+```bash
 npm run dev
 ```
 
+### 3. MetaMask Configuration
+1. Connect MetaMask to **Localhost 8545** (Chain ID: 31337).
+2. Import the test accounts using the private keys displayed in **Terminal 2** after running `npm run seed`.
+3. Use **Auditor 1** (Deployer) for administrative actions and **Borrower 1** for loan requests.
 
 ## 🤝 Contributing
-
 This is an open-source, community-driven project.
 **No VC. No premine. Just hardware and code.**
 

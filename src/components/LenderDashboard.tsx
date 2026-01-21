@@ -135,7 +135,7 @@ export default function LenderDashboard() {
         <div className="container mx-auto p-8 space-y-12">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b-4 border-black pb-8">
                 <div className="space-y-4">
-                    <div className="inline-block bg-zinc-950 text-white px-3 py-1 text-[10px] font-black uppercase tracking-widest border-2 border-black neo-shadow-blue">
+                    <div className="inline-block bg-white text-black px-3 py-1 text-[10px] font-black uppercase tracking-widest border-2 border-black neo-shadow">
                         POSITION: LIQUIDITY_PROVIDER
                     </div>
                     <h1 className="text-6xl font-black uppercase tracking-tighter leading-none">
@@ -156,7 +156,7 @@ export default function LenderDashboard() {
             </div>
 
             {statusMsg && (
-                <div className={`p-4 border-4 border-black font-black uppercase text-center neo-shadow-lg ${statusMsg.includes("Error") ? "bg-red-400" : "bg-green-400"}`}>
+                <div className={`p-4 border-4 border-black font-black uppercase text-center neo-shadow-lg ${statusMsg.includes("Error") ? "bg-white text-red-600" : "bg-black text-white"}`}>
                     {statusMsg}
                 </div>
             )}
@@ -171,7 +171,7 @@ export default function LenderDashboard() {
                     </div>
                     <button
                         onClick={() => fetchDeposits()}
-                        className="bg-yellow-400 text-black px-4 py-2 border-2 border-black neo-shadow hover:neo-shadow-none transition-all text-[10px] font-black uppercase tracking-widest"
+                        className="bg-black text-white px-4 py-2 border-2 border-black neo-shadow hover:neo-shadow-none transition-all text-[10px] font-black uppercase tracking-widest"
                     >
                         SYNC_STATE
                     </button>
@@ -211,8 +211,8 @@ export default function LenderDashboard() {
                                     <td className="px-8 py-6">
                                         <div className={`
                                             inline-block px-3 py-1 border-2 border-black text-[10px] font-black uppercase skew-x-[-10deg]
-                                            ${deposit.withdrawn ? 'bg-zinc-200 opacity-50' :
-                                                deposit.canWithdraw ? 'bg-green-400' : 'bg-yellow-100'}
+                                            ${deposit.withdrawn ? 'bg-zinc-100 opacity-50' :
+                                                deposit.canWithdraw ? 'bg-black text-white' : 'bg-transparent'}
                                         `}>
                                             {deposit.withdrawn ? "IDLE_RELEASED" :
                                                 deposit.canWithdraw ? "YIELD_READY" :
@@ -222,7 +222,7 @@ export default function LenderDashboard() {
                                     <td className="px-8 py-6 text-right">
                                         {!deposit.withdrawn && deposit.canWithdraw ? (
                                             <button
-                                                className="bg-[#10b981] text-white px-4 py-2 border-2 border-black neo-shadow hover:neo-shadow-none active:translate-x-[1px] font-black text-[10px] uppercase tracking-widest"
+                                                className="bg-black text-white px-4 py-2 border-2 border-black neo-shadow hover:neo-shadow-none active:translate-x-[1px] font-black text-[10px] uppercase tracking-widest"
                                                 onClick={() => handleWithdraw(deposit.index)}
                                             >
                                                 WITHDRAW_TOTAL

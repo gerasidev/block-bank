@@ -208,7 +208,7 @@ export default function BorrowerDashboard() {
         <div className="container mx-auto p-8 space-y-12">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b-4 border-black pb-8">
                 <div className="space-y-4">
-                    <div className="inline-block bg-zinc-950 text-white px-3 py-1 text-[10px] font-black uppercase tracking-widest border-2 border-black neo-shadow-green">
+                    <div className="inline-block bg-white text-black px-3 py-1 text-[10px] font-black uppercase tracking-widest border-2 border-black neo-shadow">
                         ACCESS_LEVEL: BORROWER
                     </div>
                     <h1 className="text-6xl font-black uppercase tracking-tighter leading-none">
@@ -230,7 +230,7 @@ export default function BorrowerDashboard() {
 
             <div className="grid lg:grid-cols-12 gap-10">
                 <div className="lg:col-span-4 space-y-8">
-                    <div className="neo-card bg-yellow-400 !p-8 border-4">
+                    <div className="neo-card bg-white !p-8 border-4">
                         <div className="space-y-6">
                             <div className="space-y-2">
                                 <h2 className="text-2xl font-black uppercase flex items-center gap-2">
@@ -272,7 +272,7 @@ export default function BorrowerDashboard() {
                                 </div>
 
                                 <button
-                                    className="w-full bg-[#10b981] text-white py-4 border-4 border-black neo-shadow hover:neo-shadow-none active:translate-x-[2px] active:translate-y-[2px] transition-all font-black text-lg uppercase tracking-widest flex items-center justify-center gap-3 disabled:opacity-50"
+                                    className="w-full bg-black text-white py-4 border-4 border-black neo-shadow hover:neo-shadow-none active:translate-x-[2px] active:translate-y-[2px] transition-all font-black text-lg uppercase tracking-widest flex items-center justify-center gap-3 disabled:opacity-50"
                                     onClick={handleMintAndRequest}
                                     disabled={loading || !account || !description}
                                 >
@@ -304,7 +304,7 @@ export default function BorrowerDashboard() {
                             </div>
                             <button
                                 onClick={() => account && fetchMyLoans(account, new ethers.BrowserProvider(window.ethereum as any))}
-                                className="bg-blue-400 text-black p-2 border-2 border-black neo-shadow hover:neo-shadow-none transition-all text-[10px] font-black"
+                                className="bg-zinc-100 text-black p-2 border-2 border-black neo-shadow hover:neo-shadow-none transition-all text-[10px] font-black"
                             >
                                 REFRESH
                             </button>
@@ -338,7 +338,7 @@ export default function BorrowerDashboard() {
                                                     <span className="text-[10px] font-black italic">{loan.approvals}/2 SIGNED</span>
                                                     <div className="h-2 w-28 bg-white border-2 border-black p-0.5">
                                                         <div
-                                                            className="h-full bg-blue-500 border border-black transition-all duration-1000"
+                                                            className="h-full bg-black border border-black transition-all duration-1000"
                                                             style={{ width: `${(loan.approvals / 2) * 100}%` }}
                                                         />
                                                     </div>
@@ -347,7 +347,7 @@ export default function BorrowerDashboard() {
                                             <td className="px-8 py-6">
                                                 <div className={`
                                                     inline-block px-3 py-1 border-2 border-black text-[10px] font-black uppercase skew-x-[-10deg]
-                                                    ${loan.isReleased ? 'bg-green-400' : 'bg-yellow-100'}
+                                                    ${loan.isReleased ? 'bg-zinc-800 text-white' : 'bg-transparent'}
                                                 `}>
                                                     {loan.status}
                                                 </div>
@@ -355,7 +355,7 @@ export default function BorrowerDashboard() {
                                             <td className="px-8 py-6 text-right">
                                                 {loan.isReleased && !loan.isRepaid && (
                                                     <button
-                                                        className="bg-red-400 text-black px-4 py-2 border-2 border-black neo-shadow hover:neo-shadow-none active:translate-x-[1px] font-black text-[10px] uppercase"
+                                                        className="bg-white text-red-600 px-4 py-2 border-2 border-black neo-shadow hover:neo-shadow-none active:translate-x-[1px] font-black text-[10px] uppercase"
                                                         onClick={() => handleRepay(loan.id, loan.amount)}
                                                     >
                                                         REPAY_LIQUIDITY

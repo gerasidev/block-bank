@@ -56,6 +56,24 @@
   }
 }
 
+@utility text-gradient {
+  background: linear-gradient(to right, #000000, #4b5563, #000000);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% auto;
+  animation: gradient 4s linear infinite;
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% center;
+  }
+
+  100% {
+    background-position: 200% center;
+  }
+}
+
 @utility neo-shadow {
   box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
 }
@@ -88,4 +106,35 @@
 @utility neo-card {
   @apply border-2 border-black bg-white p-6;
   box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+}
+
+/* Leaflet Neo-Brutalist Overrides */
+.leaflet-popup-content-wrapper {
+  @apply !rounded-none !border-4 !border-black !bg-white !p-0;
+  box-shadow: 8px 8px 0px 0px rgba(0, 0, 0, 1) !important;
+}
+
+.leaflet-popup-tip {
+  @apply !bg-black;
+}
+
+.leaflet-popup-content {
+  @apply !m-0 !p-0;
+}
+
+.leaflet-container {
+  @apply !font-mono;
+}
+
+.leaflet-bar {
+  @apply !rounded-none !border-4 !border-black;
+  box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1) !important;
+}
+
+.leaflet-bar a {
+  @apply !border-none !bg-white !text-black !font-black;
+}
+
+.leaflet-bar a:hover {
+  @apply !bg-zinc-100;
 }

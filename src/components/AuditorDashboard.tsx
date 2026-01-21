@@ -224,7 +224,7 @@ export default function AuditorDashboard() {
         <div className="container mx-auto p-8 space-y-12">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div className="space-y-2">
-                    <h1 className="text-5xl font-black uppercase tracking-tighter bg-yellow-400 px-4 py-2 border-4 border-black inline-block neo-shadow-lg">
+                    <h1 className="text-5xl font-black uppercase tracking-tighter bg-black text-white px-4 py-2 border-4 border-black inline-block neo-shadow-lg">
                         Audit Registry
                     </h1>
                     <p className="text-sm font-bold opacity-70 uppercase tracking-widest max-w-xl">
@@ -232,7 +232,7 @@ export default function AuditorDashboard() {
                     </p>
                 </div>
                 <div className="flex flex-col items-end gap-3 bg-white p-4 border-2 border-black neo-shadow">
-                    <div className={`border-2 border-black uppercase font-black text-[10px] px-3 py-1 ${isAuditor ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}>
+                    <div className={`border-2 border-black uppercase font-black text-[10px] px-3 py-1 ${isAuditor ? 'bg-black text-white' : 'bg-white text-black'}`}>
                         {isAuditor ? "AUTH_LEVEL: AUDITOR" : "ACCESS: RESTRICTED"}
                     </div>
                     <div className="flex items-center gap-3">
@@ -250,7 +250,7 @@ export default function AuditorDashboard() {
             </div>
 
             {!isAuditor ? (
-                <div className="bg-red-400 border-4 border-black p-12 neo-shadow-lg text-center space-y-4">
+                <div className="bg-white border-4 border-black p-12 neo-shadow-lg text-center space-y-4">
                     <AlertCircle className="h-20 w-20 mx-auto border-4 border-black bg-white p-2" />
                     <h2 className="text-4xl font-black uppercase italic">Access Denied!</h2>
                     <p className="text-sm font-bold uppercase">
@@ -259,7 +259,7 @@ export default function AuditorDashboard() {
                     {!account && (
                         <button
                             onClick={() => connectWallet(true)}
-                            className="bg-black text-white px-8 py-3 border-2 border-black neo-shadow-green font-black uppercase tracking-widest"
+                            className="bg-black text-white px-8 py-3 border-2 border-black neo-shadow font-black uppercase tracking-widest"
                         >
                             Authorize Wallet
                         </button>
@@ -299,7 +299,7 @@ export default function AuditorDashboard() {
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4">
-                                                <div className="inline-block bg-orange-400 px-2 py-0.5 border-2 border-black font-black text-xs neo-shadow-sm">
+                                                <div className="inline-block bg-zinc-800 text-white px-2 py-0.5 border-2 border-black font-black text-xs neo-shadow-sm">
                                                     {Number(loan.amount).toLocaleString()} ETH
                                                 </div>
                                             </td>
@@ -310,7 +310,7 @@ export default function AuditorDashboard() {
                                                             <span className="text-[8px] font-black uppercase opacity-60 italic">LEV_RATIO</span>
                                                             <input
                                                                 type="number"
-                                                                className="w-16 h-8 text-xs bg-white border-2 border-black focus:bg-yellow-50 px-2 font-black"
+                                                                className="w-16 h-8 text-xs bg-white border-2 border-black focus:bg-zinc-100 px-2 font-black"
                                                                 value={approvalParams[loan.id]?.leverage || "5"}
                                                                 onChange={(e) => handleParamChange(loan.id, 'leverage', e.target.value)}
                                                             />
@@ -319,7 +319,7 @@ export default function AuditorDashboard() {
                                                             <span className="text-[8px] font-black uppercase opacity-60 italic">RATE (BPS)</span>
                                                             <input
                                                                 type="number"
-                                                                className="w-20 h-8 text-xs bg-white border-2 border-black focus:bg-yellow-50 px-2 font-black"
+                                                                className="w-20 h-8 text-xs bg-white border-2 border-black focus:bg-zinc-100 px-2 font-black"
                                                                 value={approvalParams[loan.id]?.interest || "500"}
                                                                 onChange={(e) => handleParamChange(loan.id, 'interest', e.target.value)}
                                                             />
@@ -341,7 +341,7 @@ export default function AuditorDashboard() {
                                                     <span className="text-sm font-black italic">{loan.approvals}/2</span>
                                                     <div className="h-4 w-20 border-2 border-black bg-white overflow-hidden p-0.5">
                                                         <div
-                                                            className="h-full bg-green-500 border border-black transition-all duration-700"
+                                                            className="h-full bg-black border border-black transition-all duration-700"
                                                             style={{ width: `${(loan.approvals / 2) * 100}%` }}
                                                         />
                                                     </div>
@@ -350,7 +350,7 @@ export default function AuditorDashboard() {
                                             <td className="px-6 py-4 text-right">
                                                 <div className="flex justify-end gap-3">
                                                     {loan.isReleased ? (
-                                                        <div className="bg-green-100 border-2 border-black px-3 py-1 text-[10px] font-black uppercase italic animate-pulse">
+                                                        <div className="bg-zinc-100 border-2 border-black px-3 py-1 text-[10px] font-black uppercase italic animate-pulse">
                                                             COMPLETED_RELEASE
                                                         </div>
                                                     ) : (
@@ -359,14 +359,14 @@ export default function AuditorDashboard() {
                                                                 <button
                                                                     onClick={() => handleApprove(loan.id)}
                                                                     disabled={!!processingId}
-                                                                    className="bg-[#10b981] text-white px-4 py-1.5 border-2 border-black neo-shadow hover:neo-shadow-none active:translate-x-[1px] font-black text-[10px] uppercase tracking-widest disabled:opacity-50"
+                                                                    className="bg-black text-white px-4 py-1.5 border-2 border-black neo-shadow hover:neo-shadow-none active:translate-x-[1px] font-black text-[10px] uppercase tracking-widest disabled:opacity-50"
                                                                 >
                                                                     {processingId === loan.id ? "SYNCING..." : "APPROVE_ASSET"}
                                                                 </button>
                                                             )}
                                                             {loan.approvals >= 2 && (
                                                                 <button
-                                                                    className="bg-zinc-950 text-white px-4 py-1.5 border-2 border-black neo-shadow-green hover:neo-shadow-none active:translate-x-[1px] font-black text-[10px] uppercase tracking-widest"
+                                                                    className="bg-zinc-400 text-black px-4 py-1.5 border-2 border-black neo-shadow hover:neo-shadow-none active:translate-x-[1px] font-black text-[10px] uppercase tracking-widest"
                                                                     onClick={() => handleRelease(loan.id)}
                                                                     disabled={!!processingId}
                                                                 >
@@ -374,7 +374,7 @@ export default function AuditorDashboard() {
                                                                 </button>
                                                             )}
                                                             {!loan.canApprove && loan.approvals < 2 && (
-                                                                <div className="border-2 border-black px-3 py-1 bg-yellow-400 text-[10px] font-black uppercase skew-x-[-10deg]">
+                                                                <div className="border-2 border-black px-3 py-1 bg-zinc-200 text-[10px] font-black uppercase skew-x-[-10deg]">
                                                                     VOTE_RECORDED
                                                                 </div>
                                                             )}

@@ -3,19 +3,19 @@ import { Cpu, ShieldCheck, Zap, Activity } from 'lucide-react';
 const features = [
     {
         icon: <Activity className="w-10 h-10" />,
-        color: "bg-blue-400",
+        color: "bg-white",
         title: "Liquidity Peg",
         desc: "ERC-20 token pegged 1:1 to ETH value. Mint by locking ETH via native layers. Arbitrage-stabilized liquidity."
     },
     {
         icon: <Zap className="w-10 h-10" />,
-        color: "bg-yellow-400",
+        color: "bg-white",
         title: "Deep-Tech Credit",
         desc: "Up to 5x leverage. 6-24 month lockups with dynamic yield. Purpose-built for high-capex hardware scaling."
     },
     {
         icon: <ShieldCheck className="w-10 h-10" />,
-        color: "bg-[#10b981]",
+        color: "bg-white",
         title: "Audit Layer",
         desc: "Loans verified by a decentralized network of hardware experts. Multi-signature release enforcement."
     }
@@ -51,7 +51,7 @@ export default function Features() {
                     <div className="space-y-8">
                         <h2 className="text-6xl font-black uppercase leading-[0.9] tracking-tighter">
                             Atoms <br />
-                            <span className="text-blue-500">as Collateral</span>
+                            <span className="text-black">as Collateral</span>
                         </h2>
                         <p className="text-xl font-bold uppercase tracking-widest opacity-70">
                             We tokenize physical assets into ERC-721 NFTs.
@@ -82,7 +82,7 @@ export default function Features() {
                                 VERIFIED_HARDWARE_BACKED_CREDIT_SYSTEM_001
                             </p>
                         </div>
-                        <div className="absolute -top-8 -left-8 w-20 h-20 bg-yellow-400 border-4 border-black neo-shadow -z-10 -rotate-12"></div>
+                        <div className="absolute -top-8 -left-8 w-20 h-20 bg-white border-4 border-black neo-shadow -z-10 -rotate-12"></div>
                     </div>
                 </div>
             </div>

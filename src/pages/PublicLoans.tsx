@@ -88,7 +88,7 @@ export default function PublicLoans() {
         <div className="container mx-auto p-8 space-y-12">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b-4 border-black pb-8">
                 <div className="space-y-4">
-                    <div className="inline-block bg-white text-black px-3 py-1 text-[10px] font-black uppercase tracking-widest border-2 border-black neo-shadow-green">
+                    <div className="inline-block bg-white text-black px-3 py-1 text-[10px] font-black uppercase tracking-widest border-2 border-black neo-shadow">
                         REGISTRY_STATUS: PUBLIC_DEEP_LINK
                     </div>
                     <h1 className="text-6xl font-black uppercase tracking-tighter leading-none">
@@ -104,7 +104,7 @@ export default function PublicLoans() {
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-black" />
                         <input
                             placeholder="SEARCH_LOAN_UID..."
-                            className="w-full bg-white border-4 border-black p-4 pl-12 font-black text-sm focus:bg-yellow-50 outline-none neo-shadow-lg"
+                            className="w-full bg-white border-4 border-black p-4 pl-12 font-black text-sm focus:bg-zinc-100 outline-none neo-shadow-lg"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -113,7 +113,7 @@ export default function PublicLoans() {
             </div>
 
             <div className="neo-card bg-white !p-0 border-4">
-                <div className="bg-[#10b981] text-white px-8 py-6 flex justify-between items-center border-b-4 border-black">
+                <div className="bg-black text-white px-8 py-6 flex justify-between items-center border-b-4 border-black">
                     <div className="space-y-1">
                         <h2 className="text-2xl font-black uppercase tracking-widest flex items-center gap-3">
                             Immutable Record
@@ -174,16 +174,16 @@ export default function PublicLoans() {
                                             <div className="flex flex-col gap-1">
                                                 <span className="text-[9px] font-black italic">{loan.approvals}/2 SIGNED</span>
                                                 <div className="h-2 w-20 bg-white border-2 border-black p-0.5">
-                                                    <div className="h-full bg-blue-500" style={{ width: `${Math.min((loan.approvals / 2) * 100, 100)}%` }} />
+                                                    <div className="h-full bg-black" style={{ width: `${Math.min((loan.approvals / 2) * 100, 100)}%` }} />
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="px-8 py-6">
                                             <div className={`
                                                 inline-block px-3 py-1 border-2 border-black text-[10px] font-black uppercase skew-x-[-12deg]
-                                                ${loan.status === 'Active' ? 'bg-green-400' :
-                                                    loan.status === 'Repaid' ? 'bg-blue-400' :
-                                                        loan.status === 'Ready' ? 'bg-yellow-400' : 'bg-zinc-100'}
+                                                ${loan.status === 'Active' ? 'bg-zinc-800 text-white' :
+                                                    loan.status === 'Repaid' ? 'bg-zinc-200' :
+                                                        loan.status === 'Ready' ? 'bg-zinc-400' : 'bg-transparent'}
                                             `}>
                                                 {loan.status}
                                             </div>
