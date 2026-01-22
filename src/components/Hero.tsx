@@ -14,11 +14,18 @@ export default function Hero() {
                     <span className="text-zinc-600 not-italic">BANK</span>
                 </h1>
 
-                <div className="relative inline-block">
-                    <p className="text-xl md:text-2xl font-bold uppercase tracking-widest max-w-3xl mx-auto text-black leading-tight border-l-8 border-black pl-8 text-left py-4">
-                        The first real crypto bank try.
-                        <span className="underline decoration-4 underline-offset-4 decoration-black ml-2 whitespace-nowrap">hard-tech hardware</span>.
-                        Operating on the conviction that robotics will dwarf the internet.
+                <p className="text-2xl md:text-4xl font-black uppercase tracking-[0.2em] mt-4 italic">
+                    The Future <span className="text-zinc-400">as Collateral</span>
+                </p>
+
+                <div className="relative inline-block max-w-3xl mx-auto pt-12">
+                    <div className="flex justify-start mb-6">
+                        <div className="h-3 w-20 bg-red-600 animate-blink neo-shadow-none"></div>
+                    </div>
+                    <p className="text-xl md:text-2xl font-bold uppercase tracking-widest text-black leading-tight border-l-8 border-black pl-8 text-left py-4">
+                        A community operating on <span className="underline decoration-4 underline-offset-4 decoration-black whitespace-nowrap">absolute trust</span>.
+                        We fund individuals we believe in, trusting they return the favor of liquidity
+                        regardless of the outcome. The promise of the future is our only collateral.
                     </p>
                     <div className="absolute -top-4 -right-8 w-24 h-24 border-4 border-black bg-white -z-10 rotate-12 neo-shadow"></div>
                 </div>
@@ -45,7 +52,7 @@ export default function Hero() {
                             </div>
                             <div className="space-y-2 border-l-4 border-accent pl-4">
                                 <h4 className="text-sm font-black text-accent tracking-widest uppercase italic">THYSEAS</h4>
-                                <p className="text-xs font-bold leading-tight uppercase">Funds the Machine Age.<br />Rewards the <span className="underline decoration-2 text-accent">Builders</span>.</p>
+                                <p className="text-xs font-bold leading-tight uppercase">Funds the Promise.<br />Rewards the <span className="underline decoration-2 text-accent">Trusted</span>.</p>
                             </div>
                         </div>
                     </div>

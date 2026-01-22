@@ -11,7 +11,9 @@ export default function Footer() {
                     </Link>
                     <p className="opacity-70 leading-relaxed uppercase tracking-widest text-[10px]">
                         The deep-tech stablecoin.<br />
-                        No VC. No premine. Just hardware and code.
+                        No VC.
+                        No Agenta  beeing passed down.
+                        Just hardware and code.
                     </p>
                     <div className="flex gap-4 mt-8">
                         <a href="#" className="p-2 border-2 border-black neo-shadow hover:neo-shadow-none transition-all"><Github className="w-5 h-5" /></a>
